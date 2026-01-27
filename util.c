@@ -637,7 +637,48 @@ void*   e_calloc(size_t count, size_t size)
   return p;
 }
 
+void  sigmoid_forward(double* Y, double* X, int L)
+{
+  int l = 0;
+
+  while ( l < L ) {
+    Y[l] = 1.0 / ( 1.0 + exp(-X[l]));
+    ++l;
+  }
+
+}
+//    Y = sigmoid(X), dldY, Y, &dldX, length
+void  sigmoid_backward(double* dldY, double* Y, double* dldX, int L)
+{
+  int l = 0;
+
+  while ( l < L ) {
+    dldX[l] = ( 1.0 - Y[l] ) * Y[l] * dldY[l];
+    ++l;
+  }
+
+}
+//    Y = tanh(X), &Y, X, length
+void  tanh_forward(double* Y, double* X, int L)
+{
+  int l = 0;
+  while ( l < L ) {
+    Y[l] = tanh(X[l]);
+    ++l;
+  }
+}
+//    Y = tanh(X), dldY, Y, &dldX, length
+void  tanh_backward(double* dldY, double* Y, double* dldX, int L)
+{
+  int l = 0;
+  while ( l < L ) {
+    dldX[l] = ( 1.0 - Y[l] * Y[l] ) * dldY[l];
+    ++l;
+  }
+}
+
 size_t  e_alloc_total()
 {
   return alloc_mem_tot;
 }
+

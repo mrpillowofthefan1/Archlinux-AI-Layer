@@ -91,6 +91,13 @@ void 	matrix_store(double **, int, int, FILE *);
 void 	matrix_read(double **, int, int, FILE *);
 void 	vector_read_ascii(double *, int, FILE *);
 void 	vector_store_ascii(double *, int, FILE *);
+void sigmoid_forward(double* Y, double* X, int L);
+/** Y = sigmoid(X), dldY, Y, &dldX, length */
+void sigmoid_backward(double* dldY, double* Y, double* dldX, int L);
+/** Y = tanh(X), &Y, X, length */
+void tanh_forward(double* Y, double* X, int L);
+/** Y = tanh(X), dldY, Y, &dldX, length */
+void tanh_backward(double* dldY, double* Y, double* dldX, int L);
 
 // Memory
 void*   e_calloc(size_t count, size_t size);
