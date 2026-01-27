@@ -37,10 +37,10 @@
 // used on contigous vectors
 //		A = A + B		A,		B,    l
 void 	vectors_add(double*, double*, int);
-void 	vectors_substract(double*, double*, int);
+void 	vectors_subtract(double*, double*, int);
 void 	vectors_add_scalar_multiply(double*, double*, int, double);
 void 	vectors_scalar_multiply(double*, double, int);
-void 	vectors_substract_scalar_multiply(double*, double*, int, double);
+void 	vectors_subtract_scalar_multiply(double*, double*, int, double);
 void 	vectors_add_scalar(double*, double, int );
 void 	vectors_div(double*, double*, int);
 void 	vector_sqrt(double*, int);
@@ -48,14 +48,14 @@ void 	vector_store_json(double*, int, FILE *);
 void 	vector_store_as_matrix_json(double*, int, int, FILE *);
 //		A = A + B		A,		B,    R, C
 void 	matrix_add(double**, double**, int, int);
-void 	matrix_substract(double**, double**, int, int);
+void 	matrix_subtract(double**, double**, int, int);
 //		A = A*b		A,		b,    R, C
 void 	matrix_scalar_multiply(double**, double, int, int);
 
 //		A = A * B		A,		B,    l
 void 	vectors_multiply(double*, double*, int);
 //		A = A * b		A,		b,    l
-void 	vectors_mutliply_scalar(double*, double, int);
+void 	vectors_multiply_scalar(double*, double, int);
 //		A = random( (R, C) ) / sqrt(R / 2), &A, R, C
 int 	init_random_matrix(double***, int, int);
 //		A = 0.0s, &A, R, C

@@ -1,37 +1,3 @@
-/*
-* This file is part of the LSTM Network implementation In C made by Rickard Hallerbäck
-*
-*                 Copyright (c) 2018 Rickard Hallerbäck
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this
-* software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
-* Software, and to permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-* The above copyright notice and this permission notice shall be included in all copies
-* or substantial portions of the Software.
-*
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-* PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-* FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-* OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-* OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-/*
-* Dealing with common vector operations
-*
-* ==================== WARNING ====================
-*   The caller should have thought about the memory
-*    allocation, these functions assumes that
-*    everything is OK. If not used with care,
-*   prohibted reads/writes might occur.
-* =================================================
-*
-*/
 #include "util.h"
 
 // used on contigous vectors
@@ -72,7 +38,7 @@ void  vectors_add_scalar_multiply(double* A, double* B, int L, double s)
   }
 }
 
-void  vectors_substract(double* A, double* B, int L)
+void  vectors_subtract(double* A, double* B, int L)
 {
   int l = 0;
   while ( l < L ) {
@@ -99,7 +65,7 @@ void  vector_sqrt(double* A, int L)
   }
 }
 // A = A - (B * s)
-void  vectors_substract_scalar_multiply(double* A, double* B, int L, double s)
+void  vectors_subtract_scalar_multiply(double* A, double* B, int L, double s)
 {
   int l = 0;
   while ( l < L ) {
@@ -117,7 +83,7 @@ void  vectors_multiply(double* A, double* B, int L)
     ++l;
   }
 }
-void  vectors_mutliply_scalar(double* A, double b, int L)
+void  vectors_multiply_scalar(double* A, double b, int L)
 {
   int l = 0;
   while ( l < L ) {
@@ -334,7 +300,7 @@ void  matrix_set_to_zero(double** A, int R, int C)
   }
 }
 
-void  matrix_substract(double** A, double** B, int R, int C)
+void  matrix_subtract(double** A, double** B, int R, int C)
 {
   int r = 0, c = 0;
 
@@ -405,7 +371,7 @@ int   vectors_fit(double* V, double limit, int L)
   }
 
   if ( msg )
-    vectors_mutliply_scalar(V, limit / norm, L);
+    vectors_multiply_scalar(V, limit / norm, L);
 
   return msg;
 }
