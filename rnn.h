@@ -54,4 +54,14 @@ typedef struct {
     lstm_cache* caches;
 } lstm_forward_output;
 
+typedef struct {
+    Matrix* dxt;
+    Matrix* da_prev;
+    Matrix* dWax;
+    Matrix* dWaa;
+    Matrix* dba;
+
+}gradients;
+
+
 

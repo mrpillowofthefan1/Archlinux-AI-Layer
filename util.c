@@ -3,7 +3,6 @@
 #include <math.h>
 #include "util.h"
 
-#define MAT(M, r, c) ((M)->data[(r) * (M)->cols + (c)])
 
 double randu()
 {

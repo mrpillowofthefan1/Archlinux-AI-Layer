@@ -1,5 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
+#define MAT(M, r, c) ((M)->data[(r) * (M)->cols + (c)])
 
 #include <stddef.h>
 

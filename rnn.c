@@ -197,3 +197,52 @@ lstm_forward_output lstm_forward(Matrix** x, int T_x, Matrix* a0, lstm_parameter
 
     return out;
 }
+
+gradients rnn_cell_backward(Matrix* a, rnn_cache* cache) {
+    Matrix* a_next = cache->a_next;
+    Matrix* a_prev = cache->a_prev;
+    Matrix* xt     = cache->xt;
+    parameter_rnn* params = cache->params;
+    gradients out;
+
+    Matrix* one = matrix_zero(a_next->rows, a_next->cols);
+    for (int i = 0; i < a_next->rows * a_next->cols; i++)
+        one->data[i] = 1.0 - a_next->data[i] * a_next->data[i];
+    Matrix* dtanh = matrix_copy(one);
+    matrix_hadamard(dtanh, a);
+
+    // dxt = Wax.T @ dtanh
+    Matrix* Wax_T = matrix_transpose(params->Wax);
+    Matrix *dxt = matrix_mul(Wax_T, dtanh);
+    out.dxt = dxt;
+
+    // dWax = dtanh @ xt.T
+    Matrix* xt_T = matrix_transpose(xt);
+    Matrix*dWax = matrix_mul(dtanh, xt_T);
+    out.dWax = dWax;
+
+    // da_prev = Waa.T @ dtanh
+    Matrix* Waa_T = matrix_transpose(params->Waa);
+    Matrix*da_prev = matrix_mul(Waa_T, dtanh);
+    out.da_prev = da_prev;
+
+    // dWaa = dtanh @ a_prev.T
+    Matrix* a_prev_T = matrix_transpose(a_prev);
+    Matrix*dWaa = matrix_mul(dtanh, a_prev_T);
+    out.dWaa = dWaa;
+
+    // dba = sum over columns of dtanh
+    Matrix *dba = matrix_zero(dtanh->rows, 1);
+    for (int r = 0; r < dtanh->rows; r++)
+        for (int c = 0; c < dtanh->cols; c++)
+            MAT(dba, r, 0) += MAT(dtanh, r, c);
+    out.dba = dba;
+
+    matrix_free(one);
+    matrix_free(dtanh);
+    matrix_free(Wax_T);
+    matrix_free(xt_T);
+    matrix_free(Waa_T);
+    matrix_free(a_prev_T);
+    return out;
+}
