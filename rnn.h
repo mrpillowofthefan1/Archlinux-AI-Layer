@@ -48,9 +48,10 @@ typedef struct {
 } rnn_forward_output;
 
 typedef struct {
-    Matrix** a;          // length T_x, each (n_a, m)
-    Matrix** y_pred;     // length T_x, each (n_y, m)
-    rnn_cache* caches;   // length T_x
     int T_x;
+    Matrix** a;
+    Matrix** y_pred;
+    lstm_cache* caches;
 } lstm_forward_output;
+
 

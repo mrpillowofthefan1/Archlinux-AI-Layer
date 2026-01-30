@@ -1,12 +1,14 @@
-#include <stddef.h>
 #include "rnn.h"
-
-#include <stdlib.h>
-
 #include "util.h"
 
-void rnn_cell_forward(Matrix* xt, Matrix* a_prev, parameter_rnn* params,
-    Matrix** a_next_out, Matrix** yt_pred_out, rnn_cache* cache)
+void rnn_cell_forward(
+    Matrix* xt,
+    Matrix* a_prev,
+    parameter_rnn* params,
+    Matrix** a_next_out,
+    Matrix** yt_pred_out,
+    rnn_cache* cache
+    )
 {
     Matrix* Waa_aprev = matrix_mul(params->Waa, a_prev);
     Matrix* Wax_xt   = matrix_mul(params->Wax, xt);
@@ -143,4 +145,55 @@ void lstm_cell_forward(
     matrix_free(ot_lin);
     matrix_free(tanh_c);
     matrix_free(y_lin);
+}
+
+lstm_forward_output lstm_forward(Matrix** x, int T_x, Matrix* a0, lstm_parameters* params)
+{
+    lstm_forward_output out;
+    out.T_x = T_x;
+
+    out.a = e_calloc(T_x, sizeof(Matrix*));
+    out.y_pred = e_calloc(T_x, sizeof(Matrix*));
+    out.caches = e_calloc(T_x, sizeof(lstm_cache));
+
+
+    Matrix* a_next = matrix_copy(a0);
+    Matrix* c_next = matrix_zero(a0->rows, a0->cols);
+
+    for (int t = 0; t < T_x; t++)
+    {
+        Matrix* a_t;
+        Matrix* c_t;
+        Matrix* y_t;
+
+        lstm_cell_forward(
+            x[t],      // input at time t
+            a_next,    // previous hidden state
+            c_next,    // previous cell state
+            params,    // LSTM parameters
+            &a_t,      // output hidden state
+            &c_t,      // output cell state
+            &y_t,      // output prediction
+            &out.caches[t] // store cache for backprop
+        );
+
+        out.a[t] = a_t;
+        out.y_pred[t] = y_t;
+
+        if (t > 0)
+        {
+            matrix_free(a_next);
+            matrix_free(c_next);
+        }
+
+        a_next = matrix_copy(a_t);
+        c_next = matrix_copy(c_t);
+
+        matrix_free(c_t);
+    }
+
+    matrix_free(a_next);
+    matrix_free(c_next);
+
+    return out;
 }
