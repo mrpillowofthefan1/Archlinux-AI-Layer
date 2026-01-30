@@ -1,684 +1,235 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "util.h"
 
-// used on contigous vectors
-void  vectors_add(double* A, double* B, int L)
+#define MAT(M, r, c) ((M)->data[(r) * (M)->cols + (c)])
+
+double randu()
 {
-  int l = 0;
-  while ( l < L ) {
-    A[l] += B[l];
-    ++l;
-  }
+    return (double)rand() / (double)RAND_MAX;
 }
 
-void  vectors_add_scalar(double* A, double B, int L)
+double randn(double mean, double std)
 {
-  int l = 0;
-  while ( l < L ) {
-    A[l] += B;
-    ++l;
-  }
-}
-
-void  vectors_scalar_multiply(double* A, double d, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] *= d;
-    ++l;
-  }
-}
-
-// A = A + (B * s)
-void  vectors_add_scalar_multiply(double* A, double* B, int L, double s)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] += B[l] * s;
-    ++l;
-  }
-}
-
-void  vectors_subtract(double* A, double* B, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] -= B[l];
-    ++l;
-  }
-}
-
-void  vectors_div(double* A, double* B, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] /= B[l];
-    ++l;
-  }
-}
-
-void  vector_sqrt(double* A, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] = sqrt(A[l]);
-    ++l;
-  }
-}
-// A = A - (B * s)
-void  vectors_subtract_scalar_multiply(double* A, double* B, int L, double s)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] -= B[l] * s;
-    ++l;
-  }
-}
-
-
-void  vectors_multiply(double* A, double* B, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] *= B[l];
-    ++l;
-  }
-}
-void  vectors_multiply_scalar(double* A, double b, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    A[l] *= b;
-    ++l;
-  }
-}
-
-int   init_random_matrix(double*** A, int R, int C)
-{
-  int r = 0, c = 0;
-
-  *A = e_calloc(R, sizeof(double*));
-
-  while ( r < R ) {
-    (*A)[r] = e_calloc(C, sizeof(double));
-    ++r;
-  }
-
-  r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      (*A)[r][c] =  randn(0,1) / sqrt( R );
-      ++c;
-    }
-    ++r;
-  }
-
-  return 0;
-}
-
-double*   get_random_vector(int L, int R) {
-
-  int l = 0;
-  double *p;
-  p = e_calloc(L, sizeof(double));
-
-  while ( l < L ) {
-    p[l] = randn(0,1) / sqrt( R / 5 );
-    ++l;
-  }
-
-  return p;
-
-}
-
-double**  get_random_matrix(int R, int C)
-{
-  int r = 0, c = 0;
-  double ** p;
-  p = e_calloc(R, sizeof(double*));
-
-  while ( r < R ) {
-    p[r] = e_calloc(C, sizeof(double));
-    ++r;
-  }
-
-  r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      p[r][c] =  ((( (double) rand() ) / RAND_MAX) ) / sqrt( R / 2.0 );
-      ++c;
-    }
-    ++r;
-  }
-
-  return p;
-}
-
-double**  get_zero_matrix(int R, int C)
-{
-  int r = 0, c = 0;
-  double ** p;
-  p = e_calloc(R, sizeof(double*));
-
-  while ( r < R ) {
-    p[r] = e_calloc(C, sizeof(double));
-
-    ++r;
-  }
-
-  r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      p[r][c] =  0.0;
-      ++c;
-    }
-    ++r;
-  }
-
-  return p;
-}
-
-int   init_zero_matrix(double*** A, int R, int C)
-{
-  int r = 0, c = 0;
-
-  *A = e_calloc(R, sizeof(double*));
-
-  while ( r < R ) {
-    (*A)[r] = e_calloc(C, sizeof(double));
-
-    ++r;
-  }
-
-  r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      (*A)[r][c] = 0.0;
-      ++c;
-    }
-    ++r;
-  }
-
-  return 0;
-}
-
-int   free_matrix(double** A, int R)
-{
-  int r = 0;
-  while ( r < R ) {
-    free(A[r]);
-    ++r;
-  }
-  free(A);
-  return 0;
-}
-
-int   init_zero_vector(double** V, int L)
-{
-  int l = 0;
-  *V = e_calloc(L, sizeof(double));
-
-  while ( l < L ) {
-    (*V)[l] = 0.0;
-    ++l;
-  }
-
-  return 0;
-}
-
-double*   get_zero_vector(int L)
-{
-  int l = 0;
-  double *p;
-  p = e_calloc(L, sizeof(double));
-
-  while ( l < L ) {
-    p[l] = 0.0;
-    ++l;
-  }
-
-  return p;
-}
-
-int   free_vector(double** V)
-{
-  free(*V);
-  *V = NULL;
-  return 0;
-}
-
-void  copy_vector(double* A, double* B, int L)
-{
-  int l = 0;
-
-  while ( l < L ) {
-    A[l] = B[l];
-    ++l;
-  }
-}
-
-void  matrix_add(double** A, double** B, int R, int C)
-{
-  int r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      A[r][c] += B[r][c];
-      ++c;
-    }
-    ++r;
-  }
-}
-
-void  vector_set_to_zero(double* V, int L )
-{
-  int l = 0;
-  while ( l < L )
-    V[l++] = 0.0;
-}
-
-
-void  matrix_set_to_zero(double** A, int R, int C)
-{
-  int r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      A[r][c] = 0.0;
-      ++c;
-    }
-    ++r;
-  }
-}
-
-void  matrix_subtract(double** A, double** B, int R, int C)
-{
-  int r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      A[r][c] -= B[r][c];
-      ++c;
-    }
-    ++r;
-  }
-}
-
-void  matrix_scalar_multiply(double** A, double b, int R, int C)
-{
-  int r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      A[r][c] *= b;
-      ++c;
-    }
-    ++r;
-  }
-}
-void  matrix_clip(double** A, double limit, int R, int C)
-{
-  int r = 0, c = 0;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      if ( A[r][c] > limit )
-        A[r][c] = limit;
-      else if ( A[r][c] < -limit )
-        A[r][C] = -limit;
-      ++c;
-    }
-    ++r;
-  }
-}
-
-double one_norm(double* V, int L)
-{
-  int l = 0;
-  double norm = 0.0;
-  while ( l < L ) {
-    norm += fabs(V[l]);
-    ++l;
-  }
-
-  return norm;
-}
-
-int   vectors_fit(double* V, double limit, int L)
-{
-  int l = 0;
-  int msg = 0;
-  double norm;
-  while ( l < L ) {
-    if ( V[l] > limit || V[l] < -limit ) {
-      msg = 1;
-      norm = one_norm(V, L);
-      break;
-    }
-    ++l;
-  }
-
-  if ( msg )
-    vectors_multiply_scalar(V, limit / norm, L);
-
-  return msg;
-}
-
-int   vectors_clip(double* V, double limit, int L)
-{
-  int l = 0;
-  int msg = 0;
-  while ( l < L ) {
-    if ( V[l] > limit ) {
-      msg = 1;
-      V[l] = limit;
-    } else if ( V[l] < -limit ) {
-      msg = 1;
-      V[l] = -limit;
-    }
-    ++l;
-  }
-
-  return msg;
-}
-
-void  matrix_store(double ** A, int R, int C, FILE * fp)
-{
-  int r = 0, c = 0;
-  size_t i = 0;
-  char *p;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      i = 0; p = (char*)&A[r][c];
-      while ( i < sizeof(double) ) {
-        fputc(*(p), fp);
-        ++i; ++p;
-      }
-      ++c;
-    }
-    ++r;
-  }
-
-}
-
-void  vector_print_min_max(char *name, double *V, int L)
-{
-  int l = 0;
-  double min = 100;
-  double max = -100;
-  while ( l < L ) {
-    if ( V[l] > max )
-      max = V[l];
-    if ( V[l] < min )
-      min = V[l];
-    ++l;
-  }
-  printf("%s min: %.10lf, max: %.10lf\n", name, min, max);
-}
-
-void  matrix_read(double ** A, int R, int C, FILE * fp)
-{
-  int r = 0, c = 0;
-  size_t i = 0;
-  char *p;
-  double value;
-
-  while ( r < R ) {
-    c = 0;
-    while ( c < C ) {
-      i = 0; p = (char*)&value;
-      while ( i < sizeof(double) ) {
-        *(p) = fgetc(fp);
-        ++i; ++p;
-      }
-      A[r][c] = value;
-      ++c;
-    }
-    ++r;
-  }
-
-}
-
-void  vector_store(double* V, int L, FILE * fp)
-{
-  int l = 0;
-  size_t i = 0;
-  char *p;
-
-  while ( l < L ) {
-    i = 0; p = (char*)&V[l];
-    while ( i < sizeof(double) ) {
-      fputc(*(p), fp);
-      ++i; ++p;
-    }
-    ++l;
-  }
-}
-
-void  vector_read(double * V, int L, FILE * fp)
-{
-  int l = 0;
-  size_t i = 0;
-  char *p;
-  double value;
-
-  while ( l < L ) {
-    i = 0; p = (char*)&value;
-    while ( i < sizeof(double) ) {
-      *(p) = fgetc(fp);
-      ++i; ++p;
-    }
-    V[l] = value;
-    ++l;
-  }
-
-}
-
-void  vector_store_ascii(double* V, int L, FILE * fp)
-{
-  int l = 0;
-
-  while ( l < L ) {
-    fprintf(fp, "%.20lf\r\n", V[l]);
-    ++l;
-  }
-}
-
-void  vector_read_ascii(double * V, int L, FILE * fp)
-{
-  int l = 0;
-
-  while ( l < L ) {
-    if ( fscanf(fp, "%lf", &V[l]) <= 0 ) {
-      fprintf(stderr, "%s.%s Failed to read file\r\n",
-        __FILE__, __func__);
-      exit(1);
-    }
-    ++l;
-  }
-
-}
-
-/*
-*   This function is used to store a JSON file representation
-*   of a LSTM neural network that can be read by an HTML application.
-*/
-void  vector_store_as_matrix_json(double* V, int R, int C, FILE * fp)
-{
-  int r = 0, c = 0;
-
-  if ( fp == NULL )
-    return; // No file, nothing to do.
-
-  fprintf(fp, "[");
-
-  r = 0;
-
-  while ( r < R ) {
-
-    if ( r > 0 )
-      fprintf(fp, ",");
-
-    fprintf(fp,"[");
-
-    c = 0;
-    while ( c < C ) {
-
-      if ( c > 0 )
-        fprintf(fp, ",");
-
-      fprintf(fp,"%.15f", V[r*C + c]);
-
-      ++c;
+    static int has_spare = 0;
+    static double spare;
+
+    if (has_spare) {
+        has_spare = 0;
+        return mean + std * spare;
     }
 
-    fprintf(fp,"]");
+    has_spare = 1;
+    double u, v, s;
+    do {
+        u = randu() * 2.0 - 1.0;
+        v = randu() * 2.0 - 1.0;
+        s = u * u + v * v;
+    } while (s >= 1.0 || s == 0.0);
 
-    ++r;
-  }
-
-  fprintf(fp, "]");
+    s = sqrt(-2.0 * log(s) / s);
+    spare = v * s;
+    return mean + std * (u * s);
 }
 
-
-/*
-*   This function is used to store a JSON file representation
-*   of a LSTM neural network that can be read by an HTML application.
-*/
-void  vector_store_json(double* V, int L, FILE * fp)
+Matrix *matrix_zero(int rows, int cols)
 {
-  int l = 0;
-
-  if ( fp == NULL )
-    return; // No file, nothing to do.
-
-  fprintf(fp, "[");
-
-  while ( l < L ) {
-
-    if ( l > 0 )
-      fprintf(fp, ",");
-
-    fprintf(fp,"%.15f", V[l]);
-
-    ++l;
-  }
-
-  fprintf(fp, "]");
+    Matrix *M = e_calloc(1, sizeof(Matrix));
+    M->rows = rows;
+    M->cols = cols;
+    M->data = e_calloc(rows * cols, sizeof(double));
+    return M;
 }
 
-/*
-* Gaussian generator: https://phoxis.org/2013/05/04/generating-random-numbers-from-normal-distribution-in-c/
-*/
-double
-randn (double mu, double sigma)
+Matrix *matrix_random(int rows, int cols)
 {
-  double U1, U2, W, mult;
-  static double X1, X2;
-  static int call = 0;
+    Matrix *M = matrix_zero(rows, cols);
+    double scale = 1.0 / sqrt(rows);
 
-  if (call == 1)
-  {
-    call = !call;
-    return (mu + sigma * (double) X2);
-  }
+    for (int r = 0; r < rows; r++)
+        for (int c = 0; c < cols; c++)
+            MAT(M, r, c) = randn(0.0, 1.0) * scale;
 
-  do {
-    U1 = -1 + ((double) rand () / RAND_MAX) * 2;
-    U2 = -1 + ((double) rand () / RAND_MAX) * 2;
-    W = pow (U1, 2) + pow (U2, 2);
-  } while ( W >= 1 || W == 0 );
-
-  mult = sqrt ((-2 * log (W)) / W);
-  X1 = U1 * mult;
-  X2 = U2 * mult;
-
-  call = !call;
-
-  return (mu + sigma * (double) X1);
+    return M;
 }
 
-double sample_normal() {
-  double u = ((double) rand() / (RAND_MAX)) * 2 - 1;
-  double v = ((double) rand() / (RAND_MAX)) * 2 - 1;
-  double r = u * u + v * v;
-  if (r == 0 || r > 1)
-    return sample_normal();
-  double c = sqrt(-2 * log(r) / r);
-  return u * c;
-}
-
-/* Memory related utilities */
-static size_t alloc_mem_tot = 0;
-void*   e_calloc(size_t count, size_t size)
+Matrix *matrix_copy(Matrix *A)
 {
-  void *p = calloc(count, size);
-  if ( p == NULL ) {
-    /* Failed to allocate this memory will exit */
-    fprintf(stderr, "%s error: Failed to allocate %zu bytes, having allocated %zu in total already.\n",
-      __func__, count*size, alloc_mem_tot);
-    exit(1);
-  }
-  alloc_mem_tot += count*size;
-  return p;
+    Matrix *M = matrix_zero(A->rows, A->cols);
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++)
+        M->data[i] = A->data[i];
+    return M;
 }
 
-void  sigmoid_forward(double* Y, double* X, int L)
+Matrix *matrix_concat(Matrix *A, Matrix *B)
 {
-  int l = 0;
+    if (A->cols != B->cols) {
+        fprintf(stderr, "matrix_concat: column mismatch\n");
+        exit(1);
+    }
 
-  while ( l < L ) {
-    Y[l] = 1.0 / ( 1.0 + exp(-X[l]));
-    ++l;
-  }
+    Matrix *C = matrix_zero(A->rows + B->rows, A->cols);
 
+    for (int r = 0; r < A->rows; r++)
+        for (int c = 0; c < A->cols; c++)
+            MAT(C, r, c) = MAT(A, r, c);
+
+    for (int r = 0; r < B->rows; r++)
+        for (int c = 0; c < B->cols; c++)
+            MAT(C, r + A->rows, c) = MAT(B, r, c);
+
+    return C;
 }
-//    Y = sigmoid(X), dldY, Y, &dldX, length
-void  sigmoid_backward(double* dldY, double* Y, double* dldX, int L)
+
+
+void matrix_add(Matrix *A, Matrix *B)
 {
-  int l = 0;
+    if (A->rows != B->rows || A->cols != B->cols) {
+        fprintf(stderr, "matrix_add: dimension mismatch\n");
+        exit(1);
+    }
 
-  while ( l < L ) {
-    dldX[l] = ( 1.0 - Y[l] ) * Y[l] * dldY[l];
-    ++l;
-  }
-
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++)
+        A->data[i] += B->data[i];
 }
-//    Y = tanh(X), &Y, X, length
-void  tanh_forward(double* Y, double* X, int L)
+
+void matrix_sub(Matrix *A, Matrix *B)
 {
-  int l = 0;
-  while ( l < L ) {
-    Y[l] = tanh(X[l]);
-    ++l;
-  }
-}
-//    Y = tanh(X), dldY, Y, &dldX, length
-void  tanh_backward(double* dldY, double* Y, double* dldX, int L)
-{
-  int l = 0;
-  while ( l < L ) {
-    dldX[l] = ( 1.0 - Y[l] * Y[l] ) * dldY[l];
-    ++l;
-  }
+    if (A->rows != B->rows || A->cols != B->cols) {
+        fprintf(stderr, "matrix_sub: dimension mismatch\n");
+        exit(1);
+    }
+
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++)
+        A->data[i] -= B->data[i];
 }
 
-size_t  e_alloc_total()
+void matrix_scalar_mul(Matrix *A, double s)
 {
-  return alloc_mem_tot;
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++)
+        A->data[i] *= s;
 }
 
+void matrix_hadamard(Matrix *A, Matrix *B)
+{
+    if (A->rows != B->rows || A->cols != B->cols) {
+        fprintf(stderr, "matrix_hadamard: dimension mismatch\n");
+        exit(1);
+    }
+
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++)
+        A->data[i] *= B->data[i];
+}
+
+void matrix_clip(Matrix *A, double limit)
+{
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++) {
+        if (A->data[i] > limit)
+            A->data[i] = limit;
+        else if (A->data[i] < -limit)
+            A->data[i] = -limit;
+    }
+}
+
+int init_zero_matrix(double*** A, int R, int C)
+{
+    *A = e_calloc(R, sizeof(double*));
+    for (int r = 0; r < R; r++)
+        (*A)[r] = e_calloc(C, sizeof(double));
+    return 0;
+}
+
+Matrix *matrix_mul(Matrix *A, Matrix *B)
+{
+    if (A->cols != B->rows) {
+        fprintf(stderr, "matrix_mul: dimension mismatch\n");
+        exit(1);
+    }
+
+    Matrix *R = matrix_zero(A->rows, B->cols);
+
+    for (int i = 0; i < A->rows; i++)
+        for (int j = 0; j < B->cols; j++) {
+            double sum = 0.0;
+            for (int k = 0; k < A->cols; k++)
+                sum += MAT(A, i, k) * MAT(B, k, j);
+            MAT(R, i, j) = sum;
+        }
+
+    return R;
+}
+
+Matrix *matrix_transpose(Matrix *A)
+{
+    Matrix *T = matrix_zero(A->cols, A->rows);
+
+    for (int r = 0; r < A->rows; r++)
+        for (int c = 0; c < A->cols; c++)
+            MAT(T, c, r) = MAT(A, r, c);
+
+    return T;
+}
+
+void matrix_free(Matrix *M)
+{
+    if (!M) return;
+    free(M->data);
+    free(M);
+}
+
+void sigmoid_forward_matrix(Matrix* Y, Matrix* X)
+{
+    if (Y->rows != X->rows || Y->cols != X->cols) {
+        fprintf(stderr, "sigmoid_forward_matrix: dimension mismatch\n");
+        exit(1);
+    }
+
+    int n = X->rows * X->cols;
+    for (int i = 0; i < n; i++)
+        Y->data[i] = 1.0 / (1.0 + exp(-X->data[i]));
+}
+
+void sigmoid_backward_matrix(Matrix* dldY, Matrix* Y, Matrix* dldX)
+{
+    if (dldY->rows != Y->rows || dldY->cols != Y->cols ||
+        dldX->rows != Y->rows || dldX->cols != Y->cols) {
+        fprintf(stderr, "sigmoid_backward_matrix: dimension mismatch\n");
+        exit(1);
+    }
+
+    int n = Y->rows * Y->cols;
+    for (int i = 0; i < n; i++)
+        dldX->data[i] = dldY->data[i] * Y->data[i] * (1.0 - Y->data[i]);
+}
+
+void tanh_forward_matrix(Matrix *Y, Matrix *X)
+{
+    if (Y->rows != X->rows || Y->cols != X->cols) {
+        fprintf(stderr, "tanh_forward_matrix: dimension mismatch\n");
+        exit(1);
+    }
+
+    int n = X->rows * X->cols;
+    for (int i = 0; i < n; i++)
+        Y->data[i] = tanh(X->data[i]);
+}
+
+void tanh_backward_matrix(Matrix* dldY, Matrix* Y, Matrix* dldX)
+{
+    if (dldY->rows != Y->rows || dldY->cols != Y->cols ||
+        dldX->rows != Y->rows || dldX->cols != Y->cols) {
+        fprintf(stderr, "tanh_backward_matrix: dimension mismatch\n");
+        exit(1);
+    }
+
+    int n = Y->rows * Y->cols;
+    for (int i = 0; i < n; i++)
+        dldX->data[i] = dldY->data[i] * (1.0 - Y->data[i] * Y->data[i]);
+}
