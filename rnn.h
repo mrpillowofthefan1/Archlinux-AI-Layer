@@ -69,7 +69,24 @@ typedef struct {
     Matrix *dc_prev;
     Matrix *dWf, *dWi, *dWc, *dWo;
     Matrix *dbf, *dbi, *dbc, *dbo;
+} lstm_cell_gradients;
+
+typedef struct {
+    Matrix* dx;
+    Matrix* da0;
+
+    Matrix* dWf;
+    Matrix* dWi;
+    Matrix* dWc;
+    Matrix* dWo;
+
+    Matrix* dbf;
+    Matrix* dbi;
+    Matrix* dbc;
+    Matrix* dbo;
 } lstm_gradients;
+
+
 
 
 
