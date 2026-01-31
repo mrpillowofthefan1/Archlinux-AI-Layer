@@ -61,7 +61,16 @@ typedef struct {
     Matrix* dWaa;
     Matrix* dba;
 
-}gradients;
+}rnn_gradients;
+
+typedef struct {
+    Matrix *dxt;
+    Matrix *da_prev;
+    Matrix *dc_prev;
+    Matrix *dWf, *dWi, *dWc, *dWo;
+    Matrix *dbf, *dbi, *dbc, *dbo;
+} lstm_gradients;
+
 
 
 
