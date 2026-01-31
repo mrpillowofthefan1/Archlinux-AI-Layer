@@ -165,6 +165,55 @@ Matrix *matrix_mul(Matrix *A, Matrix *B)
     return R;
 }
 
+Matrix* matrix_slice_col(Matrix* A, int col)
+{
+    if (col < 0 || col >= A->cols) return NULL;
+
+    Matrix* out = matrix_zero(A->rows, 1);
+
+    for (int r = 0; r < A->rows; r++)
+        MAT(out, r, 0) = MAT(A, r, col);
+
+    return out;
+}
+
+Matrix* matrix_slice_cols_start_end(Matrix* A, int c0, int c1)
+{
+    if (!A || c0 < 0 || c1 > A->cols || c0 >= c1) return NULL;
+
+    Matrix* out = matrix_zero(A->rows, c1 - c0);
+
+    for (int r = 0; r < A->rows; r++)
+        for (int c = c0; c < c1; c++)
+            MAT(out, r, c - c0) = MAT(A, r, c);
+
+    return out;
+}
+
+
+void matrix_set_col(Matrix* A, int col, Matrix* v)
+{
+    if (!A || !v) return;
+    if (col < 0 || col >= A->cols) return;
+    if (v->cols != 1 || v->rows != A->rows) return;
+
+    for (int r = 0; r < A->rows; r++)
+        MAT(A, r, col) = MAT(v, r, 0);
+}
+
+Matrix* matrix_sum_cols(Matrix* A)
+{
+    if (!A) return NULL;
+
+    Matrix* out = matrix_zero(A->rows, 1);
+    for (int r = 0; r < A->rows; r++)
+        for (int c = 0; c < A->cols; c++)
+            MAT(out, r, 0) += MAT(A, r, c);
+
+    return out;
+}
+
+
 Matrix *matrix_transpose(Matrix *A)
 {
     Matrix *T = matrix_zero(A->cols, A->rows);

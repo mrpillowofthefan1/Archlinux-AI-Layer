@@ -27,7 +27,11 @@ int init_zero_matrix(double*** A, int R, int C);
 void matrix_add(Matrix *A, Matrix *B);
 void matrix_sub(Matrix *A, Matrix *B);
 void matrix_scalar_mul(Matrix *A, double s);
+Matrix* matrix_slice_col(Matrix* A, int col);
+Matrix* matrix_slice_cols_start_end(Matrix* A, int c0, int c1);
 void matrix_hadamard(Matrix *A, Matrix *B);
+void matrix_set_col(Matrix* A, int col, Matrix* v);
+Matrix* matrix_sum_cols(Matrix* A);
 Matrix *matrix_mul(Matrix *A, Matrix *B);
 void matrix_clip(Matrix *A, double limit);
 
