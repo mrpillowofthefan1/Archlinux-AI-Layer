@@ -86,6 +86,15 @@ typedef struct {
     Matrix* dbo;
 } lstm_gradients;
 
+typedef struct {
+    Matrix* dWaa;
+    Matrix* dWax;
+    Matrix* dWya;
+    Matrix* db;
+    Matrix* dby;
+
+}clip_gradients;
+
 
 
 

@@ -12,11 +12,11 @@ void rnn_cell_forward(
 {
     Matrix* Waa_aprev = matrix_mul(params->Waa, a_prev);
     Matrix* Wax_xt   = matrix_mul(params->Wax, xt);
-    matrix_add(Waa_aprev, Wax_xt);        // Waa*a_prev + Wax*xt
-    matrix_add(Waa_aprev, params->ba);    // + ba
+    matrix_add(Waa_aprev, Wax_xt);
+    matrix_add(Waa_aprev, params->ba);
 
     Matrix* a_next = matrix_zero(Waa_aprev->rows, Waa_aprev->cols);
-    tanh_forward_matrix(a_next, Waa_aprev); // a_next = tanh(Waa*a_prev + Wax*xt + ba)
+    tanh_forward_matrix(a_next, Waa_aprev);
 
     Matrix* Wya_anext = matrix_mul(params->Wya, a_next);
     matrix_add(Wya_anext, params->by);
@@ -52,197 +52,58 @@ rnn_forward_output rnn_forward(Matrix** x, int T_x, Matrix* a0, parameter_rnn* p
         Matrix* a_t;
         Matrix* y_t;
 
-        rnn_cell_forward(
-            x[t],
-            a_next,
-            params,
-            &a_t,
-            &y_t,
-            &out.caches[t]
-        );
+        rnn_cell_forward(x[t], a_next, params, &a_t, &y_t, &out.caches[t]);
 
         out.a[t] = a_t;
         out.y_pred[t] = y_t;
 
-        if (t > 0)
-            matrix_free(a_next);
-
+        if (t > 0) matrix_free(a_next);
         a_next = matrix_copy(a_t);
     }
 
     matrix_free(a_next);
-
     return out;
 }
 
-void lstm_cell_forward(
-    Matrix *xt,
-    Matrix *a_prev,
-    Matrix *c_prev,
-    lstm_parameters *params,
-    Matrix **a_next_out,
-    Matrix **c_next_out,
-    Matrix **yt_pred_out,
-    lstm_cache *cache
-)
+rnn_gradients rnn_cell_backward(Matrix* da, rnn_cache* cache)
 {
-    Matrix *concat = matrix_concat(a_prev, xt);
-
-    Matrix *ft_lin = matrix_mul(params->Wf, concat);
-    matrix_add(ft_lin, params->bf);
-    Matrix *ft = matrix_zero(ft_lin->rows, ft_lin->cols);
-    sigmoid_forward_matrix(ft, ft_lin);
-
-    Matrix *it_lin = matrix_mul(params->Wi, concat);
-    matrix_add(it_lin, params->bi);
-    Matrix *it = matrix_zero(it_lin->rows, it_lin->cols);
-    sigmoid_forward_matrix(it, it_lin);
-
-    Matrix *cct_lin = matrix_mul(params->Wc, concat);
-    matrix_add(cct_lin, params->bc);
-    Matrix *cct = matrix_zero(cct_lin->rows, cct_lin->cols);
-    tanh_forward_matrix(cct, cct_lin);
-
-    Matrix *c_next = matrix_copy(c_prev);
-    matrix_hadamard(c_next, ft);
-
-    Matrix *it_cct = matrix_copy(cct);
-    matrix_hadamard(it_cct, it);
-    matrix_add(c_next, it_cct);
-
-    Matrix *ot_lin = matrix_mul(params->Wo, concat);
-    matrix_add(ot_lin, params->bo);
-    Matrix *ot = matrix_zero(ot_lin->rows, ot_lin->cols);
-    sigmoid_forward_matrix(ot, ot_lin);
-
-    Matrix *tanh_c = matrix_zero(c_next->rows, c_next->cols);
-    tanh_forward_matrix(tanh_c, c_next);
-
-    Matrix *a_next = matrix_copy(tanh_c);
-    matrix_hadamard(a_next, ot);
-
-    Matrix *y_lin = matrix_mul(params->Wy, a_next);
-    matrix_add(y_lin, params->by);
-    Matrix *yt_pred = matrix_zero(y_lin->rows, y_lin->cols);
-    sigmoid_forward_matrix(yt_pred, y_lin);
-
-    *a_next_out = a_next;
-    *c_next_out = c_next;
-    *yt_pred_out = yt_pred;
-
-    cache->a_next = a_next;
-    cache->c_next = c_next;
-    cache->a_prev = a_prev;
-    cache->c_prev = c_prev;
-    cache->ft = ft;
-    cache->it = it;
-    cache->cct = cct;
-    cache->ot = ot;
-    cache->xt = xt;
-    cache->params = params;
-
-    matrix_free(concat);
-    matrix_free(ft_lin);
-    matrix_free(it_lin);
-    matrix_free(cct_lin);
-    matrix_free(it_cct);
-    matrix_free(ot_lin);
-    matrix_free(tanh_c);
-    matrix_free(y_lin);
-}
-
-lstm_forward_output lstm_forward(Matrix** x, int T_x, Matrix* a0, lstm_parameters* params)
-{
-    lstm_forward_output out;
-    out.T_x = T_x;
-
-    out.a = e_calloc(T_x, sizeof(Matrix*));
-    out.y_pred = e_calloc(T_x, sizeof(Matrix*));
-    out.caches = e_calloc(T_x, sizeof(lstm_cache));
-
-    Matrix* a_next = matrix_copy(a0);
-    Matrix* c_next = matrix_zero(a0->rows, a0->cols);
-
-    for (int t = 0; t < T_x; t++)
-    {
-        Matrix* a_t;
-        Matrix* c_t;
-        Matrix* y_t;
-
-        lstm_cell_forward(
-            x[t],
-            a_next,
-            c_next,
-            params,
-            &a_t,
-            &c_t,
-            &y_t,
-            &out.caches[t]
-        );
-
-        out.a[t] = a_t;
-        out.y_pred[t] = y_t;
-
-        if (t > 0)
-        {
-            matrix_free(a_next);
-            matrix_free(c_next);
-        }
-
-        a_next = matrix_copy(a_t);
-        c_next = matrix_copy(c_t);
-
-        matrix_free(c_t);
-    }
-
-    matrix_free(a_next);
-    matrix_free(c_next);
-
-    return out;
-}
-
-rnn_gradients rnn_cell_backward(Matrix* da, rnn_cache* cache) {
-    Matrix* a_next = cache->a_next;
-    Matrix* a_prev = cache->a_prev;
-    Matrix* xt     = cache->xt;
-    parameter_rnn* params = cache->params;
     rnn_gradients out;
 
+    Matrix* a_next = cache->a_next;
+    Matrix* a_prev = cache->a_prev;
+    Matrix* xt = cache->xt;
+    parameter_rnn* params = cache->params;
+
     Matrix* dtanh = matrix_copy(a_next);
-    for (int i = 0; i < a_next->rows * a_next->cols; i++)
+    for (int i = 0; i < dtanh->rows * dtanh->cols; i++)
         dtanh->data[i] = da->data[i] * (1.0 - a_next->data[i] * a_next->data[i]);
 
-    Matrix* dxt = matrix_mul(matrix_transpose(params->Wax), dtanh);
-    Matrix* dWax = matrix_mul(dtanh, matrix_transpose(xt));
-    Matrix* da_prev = matrix_mul(matrix_transpose(params->Waa), dtanh);
-    Matrix* dWaa = matrix_mul(dtanh, matrix_transpose(a_prev));
+    out.dxt = matrix_mul(matrix_transpose(params->Wax), dtanh);
+    out.dWax = matrix_mul(dtanh, matrix_transpose(xt));
+    out.da_prev = matrix_mul(matrix_transpose(params->Waa), dtanh);
+    out.dWaa = matrix_mul(dtanh, matrix_transpose(a_prev));
 
-    Matrix* dba = matrix_zero(dtanh->rows, 1);
+    out.dba = matrix_zero(dtanh->rows, 1);
     for (int r = 0; r < dtanh->rows; r++)
         for (int c = 0; c < dtanh->cols; c++)
-            MAT(dba, r, 0) += MAT(dtanh, r, c);
-
-    out.dxt = dxt;
-    out.dWax = dWax;
-    out.da_prev = da_prev;
-    out.dWaa = dWaa;
-    out.dba = dba;
+            MAT(out.dba, r, 0) += MAT(dtanh, r, c);
 
     matrix_free(dtanh);
     return out;
 }
 
-rnn_gradients rnn_backward(Matrix* da, rnn_cache* caches, int T_x) {
+rnn_gradients rnn_backward(Matrix* da, rnn_cache* caches, int T_x)
+{
     rnn_gradients out;
 
     int n_a = da->rows;
-    int m   = da->cols / T_x;
+    int m = da->cols / T_x;
     int n_x = caches[0].xt->rows;
 
-    Matrix* dx   = matrix_zero(n_x, m * T_x);
+    Matrix* dx = matrix_zero(n_x, m * T_x);
     Matrix* dWax = matrix_zero(n_a, n_x);
     Matrix* dWaa = matrix_zero(n_a, n_a);
-    Matrix* dba  = matrix_zero(n_a, 1);
+    Matrix* dba = matrix_zero(n_a, 1);
     Matrix* da_prev = matrix_zero(n_a, m);
 
     for (int t = T_x - 1; t >= 0; t--) {
@@ -394,24 +255,21 @@ lstm_gradients lstm_backward(Matrix* da, lstm_cache* cache, int T_x)
     lstm_gradients out;
 
     int n_a = da->rows;
-    int m   = da->cols / T_x;
+    int m = da->cols / T_x;
     int n_x = cache[0].xt->rows;
 
-    Matrix* dx  = matrix_zero(n_x, m * T_x);
-    Matrix* da0 = matrix_zero(n_a, m);
-
-    Matrix* dWf = matrix_zero(n_a, n_a + n_x);
-    Matrix* dWi = matrix_zero(n_a, n_a + n_x);
-    Matrix* dWc = matrix_zero(n_a, n_a + n_x);
-    Matrix* dWo = matrix_zero(n_a, n_a + n_x);
-
-    Matrix* dbf = matrix_zero(n_a, 1);
-    Matrix* dbi = matrix_zero(n_a, 1);
-    Matrix* dbc = matrix_zero(n_a, 1);
-    Matrix* dbo = matrix_zero(n_a, 1);
-
+    Matrix* dx = matrix_zero(n_x, m * T_x);
     Matrix* da_prevt = matrix_zero(n_a, m);
     Matrix* dc_prevt = matrix_zero(n_a, m);
+
+    out.dWf = matrix_zero(n_a, n_a + n_x);
+    out.dWi = matrix_zero(n_a, n_a + n_x);
+    out.dWc = matrix_zero(n_a, n_a + n_x);
+    out.dWo = matrix_zero(n_a, n_a + n_x);
+    out.dbf = matrix_zero(n_a, 1);
+    out.dbi = matrix_zero(n_a, 1);
+    out.dbc = matrix_zero(n_a, 1);
+    out.dbo = matrix_zero(n_a, 1);
 
     for (int t = T_x - 1; t >= 0; t--) {
         Matrix* da_t = matrix_slice_col(da, t);
@@ -420,16 +278,14 @@ lstm_gradients lstm_backward(Matrix* da, lstm_cache* cache, int T_x)
         lstm_cell_gradients step = lstm_cell_backward(da_t, dc_prevt, &cache[t]);
 
         matrix_set_col(dx, t, step.dxt);
-
-        matrix_add(dWf, step.dWf);
-        matrix_add(dWi, step.dWi);
-        matrix_add(dWc, step.dWc);
-        matrix_add(dWo, step.dWo);
-
-        matrix_add(dbf, step.dbf);
-        matrix_add(dbi, step.dbi);
-        matrix_add(dbc, step.dbc);
-        matrix_add(dbo, step.dbo);
+        matrix_add(out.dWf, step.dWf);
+        matrix_add(out.dWi, step.dWi);
+        matrix_add(out.dWc, step.dWc);
+        matrix_add(out.dWo, step.dWo);
+        matrix_add(out.dbf, step.dbf);
+        matrix_add(out.dbi, step.dbi);
+        matrix_add(out.dbc, step.dbc);
+        matrix_add(out.dbo, step.dbo);
 
         matrix_free(da_prevt);
         matrix_free(dc_prevt);
@@ -449,25 +305,9 @@ lstm_gradients lstm_backward(Matrix* da, lstm_cache* cache, int T_x)
         matrix_free(step.dbo);
     }
 
-    da0 = matrix_copy(da_prevt);
+    out.dx = dx;
+    out.da0 = da_prevt;
 
-    out.dx  = dx;
-    out.da0 = da0;
-    out.dWf = dWf;
-    out.dWi = dWi;
-    out.dWc = dWc;
-    out.dWo = dWo;
-    out.dbf = dbf;
-    out.dbi = dbi;
-    out.dbc = dbc;
-    out.dbo = dbo;
-
-    matrix_free(da_prevt);
     matrix_free(dc_prevt);
-
     return out;
 }
-
-
-
-
