@@ -29,3 +29,5 @@ clip_gradients clip(clip_gradients gradients, double maxValue) {
 
     return gradients2;
 }
+
+void clip_test

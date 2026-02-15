@@ -1,0 +1,9 @@
+# ninja log v6
+6	126	1770268816606481250	/Users/fanman/CLionProjects/Test/cmake-build-debug/cmake_install.cmake	eba8799b412b308f
+7	232	1769855013061407750	CMakeFiles/Test.dir/train.c.o	e8f828e0cc033661
+6	126	1770268816607179965	build.ninja	eba8799b412b308f
+5	175	1769853986160247367	CMakeFiles/Test.dir/main.c.o	50dae8f077366efd
+2	129	1769644598237562617	CMakeFiles/Test.dir/class.c.o	1b6ab8ed1e030fb8
+216	358	1769854581836840696	Test	f679bd0d081a61fc
+7	234	1769855013061196582	CMakeFiles/Test.dir/util.c.o	583f2833b328da42
+7	235	1769855013060947456	CMakeFiles/Test.dir/rnn.c.o	8ff491220e8f8fcf
