@@ -30,4 +30,15 @@ clip_gradients clip(clip_gradients gradients, double maxValue) {
     return gradients2;
 }
 
-void clip_test
+void clip_test() {
+    Matrix* dWax = matrix_random(5,3);
+    matrix_scalar_mul(dWax,10);
+    Matrix* dWaa = matrix_random(5,3);
+    matrix_scalar_mul(dWaa,10);
+    Matrix* dWya = matrix_random(5,3);
+    matrix_scalar_mul(dWya,10);
+    Matrix* db = matrix_random(5,3);
+    matrix_scalar_mul(db,10);
+    Matrix* dby = matrix_random(5,3);
+    matrix_scalar_mul(dby,10);
+}
