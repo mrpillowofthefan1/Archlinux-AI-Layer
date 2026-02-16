@@ -9,7 +9,7 @@ void *e_calloc(size_t num, size_t size);
 typedef struct {
     int rows;
     int cols;
-    double *data;
+    double* data;
 } Matrix;
 
 

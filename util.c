@@ -3,6 +3,15 @@
 #include <math.h>
 #include "util.h"
 
+void* e_calloc(size_t count, size_t size) {
+    void* ptr = calloc(count, size);
+    if (!ptr) {
+        fprintf(stderr, "calloc failed\n");
+        exit(EXIT_FAILURE);
+    }
+    return ptr;
+}
+
 
 double randu()
 {
