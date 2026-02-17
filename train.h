@@ -1,4 +1,3 @@
-#pragma once
 #include "rnn.h"
 
 typedef struct {

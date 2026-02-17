@@ -192,8 +192,14 @@ optimize_return optimize(
     return result;
 }
 
-int model(int data, int iterations, int n_a) {
+double get_inital_loss(int size, int len) {
+    return -log(1.0/size)*len;
+}
+int model(data data, int iterations, int n_a) {
+    double cpu_usage = data.cpu_norm;
+    double ram_usage = data.ram_norm;
 
+    return 0;
 }
 
 
