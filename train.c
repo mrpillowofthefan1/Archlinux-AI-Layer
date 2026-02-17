@@ -1,7 +1,9 @@
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "rnn.h"
+#include "util.h"
 
 void data_preprocessing() {
     FILE* fptr;
@@ -112,3 +114,54 @@ void clip_test(double mValue) {
 
     printf("Clip test complete.\n");
 }
+
+void optimize(
+    Matrix** X,
+    Matrix** Y,
+    int T_x,
+    parameter_rnn* params,
+    Matrix* a_prev,
+    double learning_rate,
+    double clip_value
+) {
+    rnn_forward_output cache = rnn_forward(X, T_x, a_prev, params);
+
+    Matrix* da = matrix_zero(cache.y_pred[0]->rows, T_x);
+    for (int t = 0; t < T_x; t++) {
+        Matrix* diff = matrix_copy(cache.y_pred[t]);
+        matrix_sub(diff, Y[t]);
+        matrix_set_col(da, t, diff);
+        matrix_free(diff);
+    }
+
+    rnn_gradients grads = rnn_backward(da, NULL, cache.caches, T_x);
+
+    clip_gradients to_clip;
+    to_clip.dWaa = grads.dWaa;
+    to_clip.dWax = grads.dWax;
+    to_clip.dWya = grads.dWya;
+    to_clip.db  = grads.dba;
+    to_clip.dby = grads.dby;
+
+    clip_gradients clipped = clip(to_clip, clip_value);
+    matrix_scalar_mul(clipped.dWaa, learning_rate);
+    matrix_sub(params->Waa, clipped.dWaa);
+    matrix_scalar_mul(clipped.dWax, learning_rate);
+    matrix_sub(params->Wax, clipped.dWax);
+    matrix_scalar_mul(clipped.dWya, learning_rate);
+    matrix_sub(params->Wya, clipped.dWya);
+    matrix_scalar_mul(clipped.db, learning_rate);
+    matrix_sub(params->ba, clipped.db);
+    matrix_scalar_mul(clipped.dby, learning_rate);
+    matrix_sub(params->by, clipped.dby);
+
+    matrix_free(da);
+    for (int t = 0; t < T_x; t++) {
+        matrix_free(cache.a[t]);
+        matrix_free(cache.y_pred[t]);
+    }
+    free(cache.a);
+    free(cache.y_pred);
+    free(cache.caches);
+}
+

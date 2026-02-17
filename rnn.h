@@ -7,8 +7,7 @@ typedef struct {
     Matrix* Wya;
     Matrix* ba;
     Matrix* by;
-
-}parameter_rnn;
+} parameter_rnn;
 
 typedef struct {
     Matrix *Wf, *bf;
@@ -31,19 +30,19 @@ typedef struct {
     lstm_parameters *params;
 } lstm_cache;
 
-
 typedef struct {
     Matrix* a_next;
     Matrix* a_prev;
     Matrix* xt;
     parameter_rnn* params;
+    Matrix* y_pred;
+    Matrix* y_true;
 } rnn_cache;
 
-
 typedef struct {
-    Matrix** a;          // length T_x, each (n_a, m)
-    Matrix** y_pred;     // length T_x, each (n_y, m)
-    rnn_cache* caches;   // length T_x
+    Matrix** a;
+    Matrix** y_pred;
+    rnn_cache* caches;
     int T_x;
 } rnn_forward_output;
 
@@ -59,9 +58,10 @@ typedef struct {
     Matrix* da_prev;
     Matrix* dWax;
     Matrix* dWaa;
+    Matrix* dWya;
     Matrix* dba;
-
-}rnn_gradients;
+    Matrix* dby;
+} rnn_gradients;
 
 typedef struct {
     Matrix *dxt;
@@ -74,12 +74,10 @@ typedef struct {
 typedef struct {
     Matrix* dx;
     Matrix* da0;
-
     Matrix* dWf;
     Matrix* dWi;
     Matrix* dWc;
     Matrix* dWo;
-
     Matrix* dbf;
     Matrix* dbi;
     Matrix* dbc;
@@ -92,11 +90,11 @@ typedef struct {
     Matrix* dWya;
     Matrix* db;
     Matrix* dby;
+} clip_gradients;
 
-}clip_gradients;
-
-
-
-
-
-
+void rnn_cell_forward(Matrix* xt, Matrix* a_prev, parameter_rnn* params, Matrix** a_next_out, Matrix** yt_pred_out, rnn_cache* cache);
+rnn_forward_output rnn_forward(Matrix** x, int T_x, Matrix* a0, parameter_rnn* params);
+rnn_gradients rnn_cell_backward(Matrix* da, Matrix* y_true, rnn_cache* cache);
+rnn_gradients rnn_backward(Matrix* da, Matrix** y_true, rnn_cache* caches, int T_x);
+lstm_cell_gradients lstm_cell_backward(Matrix *da_next, Matrix *dc_next, lstm_cache *cache);
+lstm_gradients lstm_backward(Matrix* da, lstm_cache* cache, int T_x);
