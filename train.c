@@ -192,4 +192,8 @@ optimize_return optimize(
     return result;
 }
 
+int model(int data, int iterations, int n_a) {
+
+}
+
 
