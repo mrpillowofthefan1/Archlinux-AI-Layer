@@ -1,3 +1,5 @@
+#include "train.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,7 +117,7 @@ void clip_test(double mValue) {
     printf("Clip test complete.\n");
 }
 
-void optimize(
+optimize_return optimize(
     Matrix** X,
     Matrix** Y,
     int T_x,
@@ -124,7 +126,19 @@ void optimize(
     double learning_rate,
     double clip_value
 ) {
+    optimize_return result;
+
     rnn_forward_output cache = rnn_forward(X, T_x, a_prev, params);
+
+    double loss = 0.0;
+    for (int t = 0; t < T_x; t++) {
+        for (int i = 0; i < cache.y_pred[t]->rows; i++) {
+            double yhat = MAT(cache.y_pred[t], i, 0);
+            double y    = MAT(Y[t], i, 0);
+            if (y == 1.0)
+                loss -= log(yhat + 1e-8);
+        }
+    }
 
     Matrix* da = matrix_zero(cache.y_pred[0]->rows, T_x);
     for (int t = 0; t < T_x; t++) {
@@ -140,28 +154,42 @@ void optimize(
     to_clip.dWaa = grads.dWaa;
     to_clip.dWax = grads.dWax;
     to_clip.dWya = grads.dWya;
-    to_clip.db  = grads.dba;
-    to_clip.dby = grads.dby;
+    to_clip.db   = grads.dba;
+    to_clip.dby  = grads.dby;
 
-    clip_gradients clipped = clip(to_clip, clip_value);
-    matrix_scalar_mul(clipped.dWaa, learning_rate);
-    matrix_sub(params->Waa, clipped.dWaa);
-    matrix_scalar_mul(clipped.dWax, learning_rate);
-    matrix_sub(params->Wax, clipped.dWax);
-    matrix_scalar_mul(clipped.dWya, learning_rate);
-    matrix_sub(params->Wya, clipped.dWya);
-    matrix_scalar_mul(clipped.db, learning_rate);
-    matrix_sub(params->ba, clipped.db);
-    matrix_scalar_mul(clipped.dby, learning_rate);
-    matrix_sub(params->by, clipped.dby);
+    clip(to_clip, clip_value);
+
+    matrix_scalar_mul(to_clip.dWaa, learning_rate);
+    matrix_sub(params->Waa, to_clip.dWaa);
+
+    matrix_scalar_mul(to_clip.dWax, learning_rate);
+    matrix_sub(params->Wax, to_clip.dWax);
+
+    matrix_scalar_mul(to_clip.dWya, learning_rate);
+    matrix_sub(params->Wya, to_clip.dWya);
+
+    matrix_scalar_mul(to_clip.db, learning_rate);
+    matrix_sub(params->ba, to_clip.db);
+
+    matrix_scalar_mul(to_clip.dby, learning_rate);
+    matrix_sub(params->by, to_clip.dby);
+
+    result.loss = loss;
+    result.gradients = grads;
+    result.n_a_1 = matrix_copy(cache.a[T_x - 1]);
 
     matrix_free(da);
+
     for (int t = 0; t < T_x; t++) {
         matrix_free(cache.a[t]);
         matrix_free(cache.y_pred[t]);
     }
+
     free(cache.a);
     free(cache.y_pred);
     free(cache.caches);
+
+    return result;
 }
+
 
