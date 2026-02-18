@@ -192,12 +192,13 @@ optimize_return optimize(
     return result;
 }
 
-double get_inital_loss(int size, int len) {
+double get_inital_loss(const int size, const int len) {
     return -log(1.0/size)*len;
 }
 int model(data data, int iterations, int n_a) {
     double cpu_usage = data.cpu_norm;
     double ram_usage = data.ram_norm;
+    double stress_injected = data.stress_injected;
 
     return 0;
 }
