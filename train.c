@@ -195,7 +195,7 @@ optimize_return optimize(
 double get_initial_loss(const int size, const int len) {
     return -log(1.0/size)*len;
 }
-int model(data data, int iterations, int n_a) {
+int model(const data data, const int iterations, int n_a) {
     double cpu_usage = data.cpu_norm;
     double ram_usage = data.ram_norm;
     double stress_injected = data.stress_injected;
