@@ -195,11 +195,21 @@ double get_initial_loss(const int size, const int len) {
 }
 
 parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
-    Matrix Wax  = matrix_random((rand() % n_x) + n_a)*0.01;
-    int Waa  = ((rand() % n_a) + n_a)*0.01;
-    int Wya  = ((rand() % n_y) + n_a)*0.01;
+    parameter_rnn result;
+    Matrix* Wax  = matrix_random(n_x, n_a);
+    matrix_scalar_mul(Wax, 0.01);
+    Matrix* Waa  = matrix_random(n_a, n_a);
+    matrix_scalar_mul(Waa, 0.01);
+    Matrix* Wya  = matrix_random(n_a, n_y);
+    matrix_scalar_mul(Wya, 0.01);
     Matrix* ba = matrix_zero(n_a, 1);
     Matrix* by = matrix_zero(n_y, 1);
+    result.Waa = Waa;
+    result.Wax = Waa;
+    result.Wya = Wya;
+    result.ba = ba;
+    result.by = by;
+    return result;
 }
 
 int model(const data data, const int iterations, int n_a) {
