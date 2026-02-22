@@ -23,7 +23,7 @@ clip_gradients clip(clip_gradients gradients, double maxValue) {
 
     Matrix *matrices[] = {dWaa, dWax, dWya, db, dby};
     for (int r = 0; r < 5; r++) {
-        matrix_clip(all_matricies[r], maxValue);
+        matrix_clip(matrices[r], maxValue);
     }
 
     gradients2.dWaa = dWaa;
