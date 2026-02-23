@@ -224,7 +224,15 @@ int model(const data data_feed, const int iterations) {
     data data_run = data_feed;
     matrix_zero(n_a, 1);
     for (int t = 0; t < iterations; t++) {
-         int idx = t % sizeof(data_run.cpu_norm);
+        int idx = t % sizeof(data_run.cpu_norm);
+        double cpu_norm_single = cpu_usage[idx];
+        double ram_norm_single = ram_usage[idx];
+
+
+        int stress_injected_single = stress_injected[idx];
+        //optimize_return result = optimize();
+
+
      }
     return 0;
 }
