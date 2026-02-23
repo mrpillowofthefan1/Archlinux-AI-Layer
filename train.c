@@ -216,15 +216,15 @@ int model(const data data_feed, const int iterations) {
     constexpr int n_a = 50;
     constexpr int n_x = 27;
     constexpr int n_y = 27;
-    double cpu_usage = data_feed.cpu_norm;
-    double ram_usage = data_feed.ram_norm;
-    double stress_injected = data_feed.stress_injected;
+    double* cpu_usage = data_feed.cpu_norm;
+    double* ram_usage = data_feed.ram_norm;
+    int* stress_injected = data_feed.stress_injected;
     parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
     double loss = get_initial_loss(n_a, n_x);
     data data_run = data_feed;
     matrix_zero(n_a, 1);
     for (int t = 0; t < iterations; t++) {
-         //int idx = t % ;
+         int idx = t % sizeof(data_run.cpu_norm);
      }
     return 0;
 }
