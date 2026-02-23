@@ -212,11 +212,12 @@ parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
     return result;
 }
 
-int model(const data data, const int iterations, int n_a) {
+int model(const data data, const int iterations, int n_a, int n_x, int n_y) {
     double cpu_usage = data.cpu_norm;
     double ram_usage = data.ram_norm;
     double stress_injected = data.stress_injected;
-
+    parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
+    double loss = get_initial_loss(n_a, n_x);
     for (int t = 0; t < iterations; t++) {
          int idx = t % ;
      }
