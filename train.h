@@ -1,3 +1,4 @@
+#pragma once
 #include "rnn.h"
 
 typedef struct {
@@ -7,9 +8,9 @@ typedef struct {
 }optimize_return;
 
 typedef struct {
-    double cpu_norm;
-    double ram_norm;
-    int stress_injected;
+    double* cpu_norm;
+    double* ram_norm;
+    int* stress_injected;
 }data;
 
 void data_preprocessing();

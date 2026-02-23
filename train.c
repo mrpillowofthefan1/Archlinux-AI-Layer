@@ -1,9 +1,7 @@
 #include "train.h"
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "rnn.h"
 #include "util.h"
 
@@ -195,11 +193,48 @@ optimize_return optimize(
 double get_initial_loss(const int size, const int len) {
     return -log(1.0/size)*len;
 }
-int model(const data data, const int iterations, int n_a) {
-    double cpu_usage = data.cpu_norm;
-    double ram_usage = data.ram_norm;
-    double stress_injected = data.stress_injected;
 
+parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
+    parameter_rnn result;
+    Matrix* Wax  = matrix_random(n_x, n_a);
+    matrix_scalar_mul(Wax, 0.01);
+    Matrix* Waa  = matrix_random(n_a, n_a);
+    matrix_scalar_mul(Waa, 0.01);
+    Matrix* Wya  = matrix_random(n_a, n_y);
+    matrix_scalar_mul(Wya, 0.01);
+    Matrix* ba = matrix_zero(n_a, 1);
+    Matrix* by = matrix_zero(n_y, 1);
+    result.Waa = Waa;
+    result.Wax = Wax;
+    result.Wya = Wya;
+    result.ba = ba;
+    result.by = by;
+    return result;
+}
+
+int model(const data data_feed, const int iterations) {
+    const int n_a = 50;
+    const int n_x = 27;
+    const int n_y = 27;
+    double* cpu_usage = data_feed.cpu_norm;
+    double* ram_usage = data_feed.ram_norm;
+    int* stress_injected = data_feed.stress_injected;
+    parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
+    double loss = get_initial_loss(n_a, n_x);
+    data data_run = data_feed;
+    const int data_length = iterations;
+    Matrix* a_prev = matrix_zero(n_a, 1);
+    for (int t = 0; t < iterations; t++) {
+        int idx = t % data_length;
+        double cpu_norm_single = cpu_usage[idx];
+        double ram_norm_single = ram_usage[idx];
+
+
+        int stress_injected_single = stress_injected[idx];
+        //optimize_return result = optimize();
+
+
+     }
     return 0;
 }
 
