@@ -205,7 +205,7 @@ parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
     Matrix* ba = matrix_zero(n_a, 1);
     Matrix* by = matrix_zero(n_y, 1);
     result.Waa = Waa;
-    result.Wax = Waa;
+    result.Wax = Wax;
     result.Wya = Wya;
     result.ba = ba;
     result.by = by;
