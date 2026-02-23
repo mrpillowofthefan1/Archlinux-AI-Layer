@@ -213,9 +213,9 @@ parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
 }
 
 int model(const data data_feed, const int iterations) {
-    constexpr int n_a = 50;
-    constexpr int n_x = 27;
-    constexpr int n_y = 27;
+    const int n_a = 50;
+    const int n_x = 27;
+    const int n_y = 27;
     double* cpu_usage = data_feed.cpu_norm;
     double* ram_usage = data_feed.ram_norm;
     int* stress_injected = data_feed.stress_injected;
