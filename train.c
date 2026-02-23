@@ -212,14 +212,19 @@ parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
     return result;
 }
 
-int model(const data data, const int iterations, int n_a, int n_x, int n_y) {
-    double cpu_usage = data.cpu_norm;
-    double ram_usage = data.ram_norm;
-    double stress_injected = data.stress_injected;
+int model(const data data_feed, const int iterations) {
+    constexpr int n_a = 50;
+    constexpr int n_x = 27;
+    constexpr int n_y = 27;
+    double cpu_usage = data_feed.cpu_norm;
+    double ram_usage = data_feed.ram_norm;
+    double stress_injected = data_feed.stress_injected;
     parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
     double loss = get_initial_loss(n_a, n_x);
+    data data_run = data_feed;
+    matrix_zero(n_a, 1);
     for (int t = 0; t < iterations; t++) {
-         int idx = t % ;
+         //int idx = t % ;
      }
     return 0;
 }
