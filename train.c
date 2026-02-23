@@ -222,9 +222,10 @@ int model(const data data_feed, const int iterations) {
     parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
     double loss = get_initial_loss(n_a, n_x);
     data data_run = data_feed;
-    matrix_zero(n_a, 1);
+    const int data_length = iterations;
+    Matrix* a_prev = matrix_zero(n_a, 1);
     for (int t = 0; t < iterations; t++) {
-        int idx = t % sizeof(data_run.cpu_norm);
+        int idx = t % data_length;
         double cpu_norm_single = cpu_usage[idx];
         double ram_norm_single = ram_usage[idx];
 
