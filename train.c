@@ -213,28 +213,61 @@ parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
 }
 
 int model(const data data_feed, const int iterations) {
+
     const int n_a = 50;
-    const int n_x = 27;
-    const int n_y = 27;
-    double* cpu_usage = data_feed.cpu_norm;
-    double* ram_usage = data_feed.ram_norm;
-    int* stress_injected = data_feed.stress_injected;
+    const int n_x = 3;   // cpu, ram, stress input
+    const int n_y = 1;   // predict stress
+
     parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
-    double loss = get_initial_loss(n_a, n_x);
-    data data_run = data_feed;
-    const int data_length = iterations;
+
+    int data_length = data_feed.length;
+
+    double loss = get_initial_loss(n_y, 1);
+
     Matrix* a_prev = matrix_zero(n_a, 1);
+
     for (int t = 0; t < iterations; t++) {
+
         int idx = t % data_length;
-        double cpu_norm_single = cpu_usage[idx];
-        double ram_norm_single = ram_usage[idx];
 
+        Matrix** X = malloc(sizeof(Matrix*));
+        Matrix** Y = malloc(sizeof(Matrix*));
 
-        int stress_injected_single = stress_injected[idx];
-        //optimize_return result = optimize();
+        X[0] = matrix_zero(n_x, 1);
+        MAT(X[0], 0, 0) = data_feed.cpu_norm[idx];
+        MAT(X[0], 1, 0) = data_feed.ram_norm[idx];
+        MAT(X[0], 2, 0) = (double)data_feed.stress_injected[idx];
 
+        Y[0] = matrix_zero(n_y, 1);
+        MAT(Y[0], 0, 0) = (double)data_feed.stress_injected[idx];
 
-     }
+        optimize_return result = optimize(
+            X,
+            Y,
+            1,
+            &params,
+            a_prev,
+            0.01,
+            5.0
+        );
+
+        loss = 0.999 * loss + 0.001 * result.loss;
+
+        matrix_free(a_prev);
+        a_prev = result.n_a_1;
+
+        if (t % 1000 == 0) {
+            printf("Iteration %d, Loss %f\n", t, loss);
+        }
+
+        matrix_free(X[0]);
+        matrix_free(Y[0]);
+        free(X);
+        free(Y);
+    }
+
+    matrix_free(a_prev);
+
     return 0;
 }
 
