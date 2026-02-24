@@ -6,9 +6,7 @@
 #include "util.h"
 
 void data_preprocessing() {
-    FILE* fptr;
-    fptr = fopen("processed_system_log.csv", "r");
-
+    FILE *fptr = fopen("processed_system_log.csv", "r");
 }
 
 clip_gradients clip(clip_gradients gradients, double maxValue) {
