@@ -11,6 +11,7 @@ typedef struct {
     double* cpu_norm;
     double* ram_norm;
     int* stress_injected;
+    int length;
 }data;
 
 void data_preprocessing();
