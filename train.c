@@ -32,7 +32,7 @@ clip_gradients clip(clip_gradients gradients, double maxValue) {
 }
 
 
-void clip_test(double mValue) {
+void clip_test(const double mValue) {
 
     clip_gradients gradients;
 
@@ -116,11 +116,11 @@ void clip_test(double mValue) {
 optimize_return optimize(
     Matrix** X,
     Matrix** Y,
-    int T_x,
+    const int T_x,
     parameter_rnn* params,
     Matrix* a_prev,
-    double learning_rate,
-    double clip_value
+    const double learning_rate,
+    const double clip_value
 ) {
     optimize_return result;
 
@@ -192,7 +192,7 @@ double get_initial_loss(const int size, const int len) {
     return -log(1.0/size)*len;
 }
 
-parameter_rnn initialize_parameter(int n_a, int n_x, int n_y) {
+parameter_rnn initialize_parameter(const int n_a, const int n_x, const int n_y) {
     parameter_rnn result;
     Matrix* Wax  = matrix_random(n_x, n_a);
     matrix_scalar_mul(Wax, 0.01);
