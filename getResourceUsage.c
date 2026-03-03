@@ -32,3 +32,13 @@ double get_cpu_usage() {
     if (totalDiff == 0) return 0.0;
     return (1.0 - ((double)idleDiff / totalDiff)) * 100.0;
 }
+
+double get_ram_usage() {
+    struct sysinfo info;
+    sysinfo(&info);
+
+    long long total = info.totalram * info.mem_unit;
+    long long free  = info.freeram * info.mem_unit;
+
+    return ((double)(total - free) / total) * 100.0;
+}
