@@ -1,9 +1,10 @@
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <sys/sysinfo.h>
 
 
 static unsigned long long lastUser, lastNice, lastSystem, lastIdle;
 
-//TODO: implement the functions that constantly get system information at that time
 void init_cpu() {
     FILE* fptr = fopen("/proc/stat","r");
     fscanf(fptr,"cpu %llu %llu %llu %llu", &lastUser, &lastNice, &lastSystem, &lastIdle);
@@ -41,4 +42,20 @@ double get_ram_usage() {
     long long free  = info.freeram * info.mem_unit;
 
     return ((double)(total - free) / total) * 100.0;
+}
+
+double cpu_ram_usage() {
+    FILE *csv = fopen("comparison.csv", "w");
+
+    double cpu = get_cpu_usage();
+    double ram = get_ram_usage();
+    double data_return[] = {cpu, ram};
+    printf("CPU=%.2f%% RAM=%.2f%%",
+               cpu, ram);
+
+    fprintf(csv, "%p,%.2f,%%,%%\n",
+            &cpu, ram);
+    fflush(csv);
+    fclose(csv);
+    return *data_return;
 }
