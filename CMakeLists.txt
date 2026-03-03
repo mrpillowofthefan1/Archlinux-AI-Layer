@@ -9,4 +9,6 @@ add_executable(Test main.c
         util.c
         util.h
         train.c
-        train.h)
+        train.h
+        getResourceUsage.c
+        getResourceUsage.h)
