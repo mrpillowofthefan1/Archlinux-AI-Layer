@@ -1,0 +1,14 @@
+# ninja log v6
+210	360	1772502016989368339	Test	f679bd0d081a61fc
+1	210	1772502016780838997	CMakeFiles/Test.dir/util.c.o	583f2833b328da42
+1	209	1772502016780617501	CMakeFiles/Test.dir/rnn.c.o	8ff491220e8f8fcf
+1	206	1772502016780213549	CMakeFiles/Test.dir/main.c.o	50dae8f077366efd
+1	209	1772502016781023494	CMakeFiles/Test.dir/train.c.o	e8f828e0cc033661
+4	119	1772502558030207736	/Users/fanman/CLionProjects/Test/cmake-build-debug/cmake_install.cmake	eba8799b412b308f
+4	119	1772502558031166180	build.ninja	eba8799b412b308f
+1	127	1772502561137837051	CMakeFiles/Test.dir/main.c.o	50dae8f077366efd
+2	127	1772502561138820411	CMakeFiles/Test.dir/getResourceUsage.c.o	4bd8f96a7cd4225a
+1	130	1772502561138284419	CMakeFiles/Test.dir/rnn.c.o	8ff491220e8f8fcf
+1	130	1772502561138657705	CMakeFiles/Test.dir/train.c.o	e8f828e0cc033661
+1	131	1772502561138484041	CMakeFiles/Test.dir/util.c.o	583f2833b328da42
+131	287	1772502561268510004	Test	87768aed2fbfbda3
