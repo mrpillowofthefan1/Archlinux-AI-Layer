@@ -1,4 +1,7 @@
 *.json
 *.ninja
+*ninja_deps
 *.log
+*.c.o
+
 CMakeLists.txt
