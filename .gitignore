@@ -1,6 +1,6 @@
 *.json
 *.ninja
-*ninja_deps
+*.ninja_deps
 *.log
 *.c.o
 
