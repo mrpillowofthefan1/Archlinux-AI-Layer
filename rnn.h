@@ -96,5 +96,3 @@ void rnn_cell_forward(Matrix* xt, Matrix* a_prev, parameter_rnn* params, Matrix*
 rnn_forward_output rnn_forward(Matrix** x, int T_x, Matrix* a0, parameter_rnn* params);
 rnn_gradients rnn_cell_backward(Matrix* da, Matrix* y_true, rnn_cache* cache);
 rnn_gradients rnn_backward(Matrix* da, Matrix** y_true, rnn_cache* caches, int T_x);
-lstm_cell_gradients lstm_cell_backward(Matrix *da_next, Matrix *dc_next, lstm_cache *cache);
-lstm_gradients lstm_backward(Matrix* da, lstm_cache* cache, int T_x);
