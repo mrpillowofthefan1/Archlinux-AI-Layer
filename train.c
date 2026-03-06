@@ -41,7 +41,7 @@ optimize_return optimize(Matrix** X, Matrix** Y, int T_x, parameter_rnn* params,
     matrix_scalar_mul(grads.dby, lr); matrix_sub(params->by, grads.dby);
 
     result.loss = loss;
-    result.gradients = grads; // FIXED result.gradients initialization
+    result.gradients = grads;
     result.n_a_1 = matrix_copy(cache.a[T_x - 1]);
 
     matrix_free(da);
@@ -67,7 +67,43 @@ int model(const data data_feed, const int iterations) {
         loss = 0.999 * loss + 0.001 * result.loss;
         matrix_free(a_prev); a_prev = result.n_a_1;
 
-        // Clean up grads to prevent leaks
+        matrix_free(result.gradients.dxt);
+        matrix_free(result.gradients.dWax);
+        matrix_free(result.gradients.dWaa);
+        matrix_free(result.gradients.dWya);
+        matrix_free(result.gradients.dba);
+        matrix_free(result.gradients.dby);
+        matrix_free(result.gradients.da_prev);
+
+        if (t % 1000 == 0) printf("Iteration %d, Loss %f\n", t, loss);
+        matrix_free(X[0]); matrix_free(Y[0]); free(X); free(Y);
+    }
+    matrix_free(a_prev);
+    return 0;
+}
+
+parameter_rnn model_trained( data data_feed,  int iterations) {
+    const int n_a = 50;
+    const int n_x = 3;
+    const int n_y = 1;
+
+    parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
+    Matrix* a_prev = matrix_zero(n_a, 1);
+    double loss = -log(1.0/n_y);
+
+    for (int t = 0; t < iterations; t++) {
+        int idx = t % data_feed.length;
+        Matrix** X = malloc(sizeof(Matrix*)); Matrix** Y = malloc(sizeof(Matrix*));
+        X[0] = matrix_zero(n_x, 1);
+        MAT(X[0], 0, 0) = data_feed.cpu_norm[idx];
+        MAT(X[0], 1, 0) = data_feed.ram_norm[idx];
+        MAT(X[0], 2, 0) = (double)data_feed.stress_injected[idx];
+        Y[0] = matrix_zero(n_y, 1); MAT(Y[0], 0, 0) = (double)data_feed.stress_injected[idx];
+
+        optimize_return result = optimize(X, Y, 1, &params, a_prev, 0.01, 5.0);
+        loss = 0.999 * loss + 0.001 * result.loss;
+        matrix_free(a_prev); a_prev = result.n_a_1;
+
         matrix_free(result.gradients.dxt); matrix_free(result.gradients.dWax);
         matrix_free(result.gradients.dWaa); matrix_free(result.gradients.dWya);
         matrix_free(result.gradients.dba); matrix_free(result.gradients.dby);
@@ -76,6 +112,7 @@ int model(const data data_feed, const int iterations) {
         if (t % 1000 == 0) printf("Iteration %d, Loss %f\n", t, loss);
         matrix_free(X[0]); matrix_free(Y[0]); free(X); free(Y);
     }
+
     matrix_free(a_prev);
-    return 0;
+    return params;
 }
