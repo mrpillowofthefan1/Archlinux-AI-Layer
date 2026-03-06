@@ -9,26 +9,7 @@ typedef struct {
     Matrix* by;
 } parameter_rnn;
 
-typedef struct {
-    Matrix *Wf, *bf;
-    Matrix *Wi, *bi;
-    Matrix *Wc, *bc;
-    Matrix *Wo, *bo;
-    Matrix *Wy, *by;
-} lstm_parameters;
 
-typedef struct {
-    Matrix *a_next;
-    Matrix *c_next;
-    Matrix *a_prev;
-    Matrix *c_prev;
-    Matrix *ft;
-    Matrix *it;
-    Matrix *cct;
-    Matrix *ot;
-    Matrix *xt;
-    lstm_parameters *params;
-} lstm_cache;
 
 typedef struct {
     Matrix* a_next;
@@ -46,12 +27,6 @@ typedef struct {
     int T_x;
 } rnn_forward_output;
 
-typedef struct {
-    int T_x;
-    Matrix** a;
-    Matrix** y_pred;
-    lstm_cache* caches;
-} lstm_forward_output;
 
 typedef struct {
     Matrix* dxt;
@@ -63,26 +38,7 @@ typedef struct {
     Matrix* dby;
 } rnn_gradients;
 
-typedef struct {
-    Matrix *dxt;
-    Matrix *da_prev;
-    Matrix *dc_prev;
-    Matrix *dWf, *dWi, *dWc, *dWo;
-    Matrix *dbf, *dbi, *dbc, *dbo;
-} lstm_cell_gradients;
 
-typedef struct {
-    Matrix* dx;
-    Matrix* da0;
-    Matrix* dWf;
-    Matrix* dWi;
-    Matrix* dWc;
-    Matrix* dWo;
-    Matrix* dbf;
-    Matrix* dbi;
-    Matrix* dbc;
-    Matrix* dbo;
-} lstm_gradients;
 
 typedef struct {
     Matrix* dWaa;
