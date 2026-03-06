@@ -57,9 +57,12 @@ optimize_return optimize(Matrix** X, Matrix** Y, int T_x, parameter_rnn* params,
     result.n_a_1 = matrix_copy(cache.a[T_x - 1]);
 
     matrix_free(da);
-    // Cleanup internal grads to prevent massive memory leak
-    matrix_free(grads.dxt); matrix_free(grads.dWax); matrix_free(grads.dWaa);
-    matrix_free(grads.dWya); matrix_free(grads.dba); matrix_free(grads.dby);
+    matrix_free(grads.dxt);
+    matrix_free(grads.dWax);
+    matrix_free(grads.dWaa);
+    matrix_free(grads.dWya);
+    matrix_free(grads.dba);
+    matrix_free(grads.dby);
     matrix_free(grads.da_prev);
 
     for (int t = 0; t < T_x; t++) { matrix_free(cache.a[t]); matrix_free(cache.y_pred[t]); }
