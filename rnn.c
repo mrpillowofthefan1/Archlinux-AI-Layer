@@ -1,8 +1,15 @@
 #include "rnn.h"
+
+#include <stdio.h>
+
 #include "util.h"
 
 void rnn_cell_forward(Matrix* xt, Matrix* a_prev, parameter_rnn* params, Matrix** a_next_out, Matrix** yt_pred_out, rnn_cache* cache) {
+    printf("A: %d x %d\n", params->Waa->rows, params->Waa->cols);
+    printf("B: %d x %d\n", a_prev->rows, a_prev->cols);
     Matrix* Waa_aprev = matrix_mul(params->Waa, a_prev);
+    printf("A: %d x %d\n", params->Wax->rows, params->Wax->cols);
+    printf("B: %d x %d\n", xt->rows, xt->cols);
     Matrix* Wax_xt   = matrix_mul(params->Wax, xt);
     matrix_add(Waa_aprev, Wax_xt);
     matrix_add(Waa_aprev, params->ba);

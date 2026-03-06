@@ -219,9 +219,9 @@ int model(const data data_feed, const int iterations) {
     parameter_rnn params = initialize_parameter(n_a, n_x, n_y);
 
     int data_length = data_feed.length;
-
+    printf("data_length: %d\n", data_length);
     double loss = get_initial_loss(n_y, 1);
-
+    printf("loss: %f\n", loss);
     Matrix* a_prev = matrix_zero(n_a, 1);
 
     for (int t = 0; t < iterations; t++) {
@@ -234,7 +234,7 @@ int model(const data data_feed, const int iterations) {
         X[0] = matrix_zero(n_x, 1);
         MAT(X[0], 0, 0) = data_feed.cpu_norm[idx];
         MAT(X[0], 1, 0) = data_feed.ram_norm[idx];
-        MAT(X[0], 2, 0) = (double)data_feed.stress_injected[idx];
+        MAT(X[0], 0, 0) = (double)data_feed.stress_injected[idx];
 
         Y[0] = matrix_zero(n_y, 1);
         MAT(Y[0], 0, 0) = (double)data_feed.stress_injected[idx];

@@ -17,3 +17,4 @@ typedef struct {
 void data_preprocessing();
 clip_gradients clip(clip_gradients gradients, double maxValue);
 void clip_test(double mValue);
+int model(data data_feed, int iterations);
