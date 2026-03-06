@@ -145,7 +145,8 @@ lstm_forward_output lstm_forward(Matrix** x, int T_x, Matrix* a0, Matrix* c0, ls
     for (int t = 0; t < T_x; t++) {
         Matrix* c_next;
         lstm_cell_forward(x[t], a_curr, c_curr, params, &out.a[t], &c_next, &out.caches[t]);
-        matrix_free(a_curr); matrix_free(c_curr);
+        matrix_free(a_curr);
+        matrix_free(c_curr);
         a_curr = matrix_copy(out.a[t]);
         c_curr = matrix_copy(c_next);
         out.y_pred[t] = matrix_mul(params->Wy, out.a[t]);
@@ -183,9 +184,12 @@ lstm_cell_gradients lstm_cell_backward(Matrix *da_next, Matrix *dc_next, lstm_ca
     for(int i=0; i<n_a; i++) {
         dot->data[i] *= (cache->ot->data[i]*(1.0 - cache->ot->data[i]));
     }
-    Matrix* concat = matrix_concat(cache->a_prev, cache->xt); Matrix* concat_T = matrix_transpose(concat);
-    g.dWf = matrix_mul(dft, concat_T); g.dWi = matrix_mul(dit, concat_T);
-    g.dWc = matrix_mul(dcct, concat_T); g.dWo = matrix_mul(dot, concat_T);
+    Matrix* concat = matrix_concat(cache->a_prev, cache->xt);
+    Matrix* concat_T = matrix_transpose(concat);
+    g.dWf = matrix_mul(dft, concat_T);
+    g.dWi = matrix_mul(dit, concat_T);
+    g.dWc = matrix_mul(dcct, concat_T);
+    g.dWo = matrix_mul(dot, concat_T);
     g.dbf = matrix_sum_cols(dft); g.dbi = matrix_sum_cols(dit);
     g.dbc = matrix_sum_cols(dcct); g.dbo = matrix_sum_cols(dot);
     Matrix* Wf_a = matrix_slice_cols_start_end(cache->params->Wf, 0, n_a);
