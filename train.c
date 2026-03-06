@@ -65,7 +65,9 @@ optimize_return optimize(Matrix** X, Matrix** Y, int T_x, parameter_rnn* params,
     matrix_free(grads.dby);
     matrix_free(grads.da_prev);
 
-    for (int t = 0; t < T_x; t++) { matrix_free(cache.a[t]); matrix_free(cache.y_pred[t]); }
+    for (int t = 0; t < T_x; t++) {
+        matrix_free(cache.a[t]); matrix_free(cache.y_pred[t]);
+    }
     free(cache.a); free(cache.y_pred); free(cache.caches);
 
     return result;
