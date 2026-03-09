@@ -86,7 +86,7 @@ int model(const data data_feed, const int iterations) {
         X[0] = matrix_zero(n_x, 1);
         MAT(X[0], 0, 0) = data_feed.cpu_norm[idx];
         MAT(X[0], 1, 0) = data_feed.ram_norm[idx];
-        MAT(X[0], 2, 0) = (double)data_feed.stress_injected[idx]; // Fixed Index
+        MAT(X[0], 0, 0) = (double)data_feed.stress_injected[idx]; // Fixed Index
 
         Y[0] = matrix_zero(n_y, 1);
         MAT(Y[0], 0, 0) = (double)data_feed.stress_injected[idx];

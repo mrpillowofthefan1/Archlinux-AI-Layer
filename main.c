@@ -39,5 +39,19 @@ data load_dataset() {
 }
 
 int main() {
- //TODO: rewrite the logic to iterate and train the model
+    data dataset = load_dataset();
+
+    int iterations = 50000;
+
+    printf("Starting training...\n");
+
+    model(dataset, iterations);
+
+    printf("Training complete\n");
+
+    free(dataset.cpu_norm);
+    free(dataset.ram_norm);
+    free(dataset.stress_injected);
+
+    return 0;
 }
