@@ -91,7 +91,7 @@ int model(const data data_feed, const int iterations) {
         Y[0] = matrix_zero(n_y, 1);
         MAT(Y[0], 0, 0) = (double)data_feed.stress_injected[idx];
 
-        optimize_return res = optimize(X, Y, 1, &params, a_prev, 0.01, 5.0);
+        optimize_return res = optimize(X, Y, 10, &params, a_prev, 0.01, 5.0);
         loss = 0.999 * loss + 0.001 * res.loss;
 
         matrix_free(a_prev);
