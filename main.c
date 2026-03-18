@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "train.h"
-#include "rnn.h"
 
 #define MAX_DATA 100000
 
