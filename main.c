@@ -37,6 +37,27 @@ data load_dataset() {
     return dataset;
 }
 
+double predict(parameter_rnn* params, Matrix* a_prev, double cpu, double ram) {
+    Matrix* x = matrix_zero(2, 1);
+
+    MAT(x, 0, 0) = cpu;
+    MAT(x, 1, 0) = ram;
+
+    Matrix* a_next;
+    Matrix* y_pred;
+    rnn_cache cache;
+
+    rnn_cell_forward(x, a_prev, params, &a_next, &y_pred, &cache);
+
+    double result = MAT(y_pred, 0, 0);
+
+    matrix_free(x);
+    matrix_free(a_next);
+    matrix_free(y_pred);
+
+    return result;
+}
+
 int main() {
     data dataset = load_dataset();
 
@@ -44,9 +65,30 @@ int main() {
 
     printf("Starting training...\n");
 
-    model(dataset, iterations);
+    parameter_rnn params = model(dataset, iterations);
 
     printf("Training complete\n");
+
+    Matrix* a_prev = matrix_zero(50, 1); // hidden size
+
+    while (1) {
+        double cpu, ram;
+
+        printf("\nEnter CPU (0-1): ");
+        if (scanf("%lf", &cpu) != 1) break; // Added basic check to allow exiting cleanly on bad input
+
+        printf("Enter RAM (0-1): ");
+        if (scanf("%lf", &ram) != 1) break;
+
+        // Get the raw probability from the model
+        double raw_stress = predict(&params, a_prev, cpu, ram);
+
+        // Threshold the output: 1 if >= 0.5, else 0
+        int final_stress = (raw_stress >= 0.5) ? 1 : 0;
+
+        // Print both the binary class and the raw probability
+        printf("Predicted Stress: %d (Raw confidence: %.4f)\n", final_stress, raw_stress);
+    }
 
     free(dataset.cpu_norm);
     free(dataset.ram_norm);
