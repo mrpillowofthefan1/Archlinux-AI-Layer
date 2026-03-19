@@ -75,11 +75,7 @@ int main() {
     while (1) {
         double cpu = get_cpu_usage();
         double ram = get_ram_usage();
-
-        // Get the raw probability from the model
         double raw_stress = predict(&params, a_prev, cpu, ram);
-
-        // Threshold the output: 1 if >= 0.5, else 0
         int final_stress = (raw_stress >= 0.5) ? 1 : 0;
 
         // Print both the binary class and the raw probability
