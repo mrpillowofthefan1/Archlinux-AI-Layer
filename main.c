@@ -70,7 +70,7 @@ int main() {
 
     printf("Training complete\n");
 
-    Matrix* a_prev = matrix_zero(50, 1); 
+    Matrix* a_prev = matrix_zero(50, 1);
 
     while (1) {
         double cpu = get_cpu_usage();
@@ -81,7 +81,7 @@ int main() {
         // Print both the binary class and the raw probability
         printf("Predicted Stress: %d (Raw confidence: %.4f)\n", final_stress, raw_stress);
     }
-
+    //adding in case I decide to remove the infinite loop so it doesn't cause a memory leak and also error
     free(dataset.cpu_norm);
     free(dataset.ram_norm);
     free(dataset.stress_injected);
