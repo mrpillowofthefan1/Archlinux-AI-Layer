@@ -70,7 +70,7 @@ int main() {
 
     printf("Training complete\n");
 
-    Matrix* a_prev = matrix_zero(50, 1); // hidden size
+    Matrix* a_prev = matrix_zero(50, 1); 
 
     while (1) {
         double cpu = get_cpu_usage();
