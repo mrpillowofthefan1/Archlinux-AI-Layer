@@ -86,19 +86,22 @@ int model(const data data_feed, const int iterations) {
         X[0] = matrix_zero(n_x, 1);
         MAT(X[0], 0, 0) = data_feed.cpu_norm[idx];
         MAT(X[0], 1, 0) = data_feed.ram_norm[idx];
-        MAT(X[0], 0, 0) = (double)data_feed.stress_injected[idx]; // Fixed Index
 
         Y[0] = matrix_zero(n_y, 1);
         MAT(Y[0], 0, 0) = (double)data_feed.stress_injected[idx];
 
         optimize_return res = optimize(X, Y, 10, &params, a_prev, 0.01, 5.0);
+
         loss = 0.999 * loss + 0.001 * res.loss;
 
         matrix_free(a_prev);
         a_prev = res.n_a_1;
         if (t % 1000 == 0) printf("Iteration %d, Loss %f\n", t, loss);
 
-        matrix_free(X[0]); matrix_free(Y[0]); free(X); free(Y);
+        matrix_free(X[0]);
+        matrix_free(Y[0]);
+        free(X);
+        free(Y);
     }
     matrix_free(a_prev);
     return 0;
