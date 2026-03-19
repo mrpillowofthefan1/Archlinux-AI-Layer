@@ -11,4 +11,6 @@ add_executable(Test main.c
         train.c
         train.h
         getResourceUsage.c
-        getResourceUsage.h)
+        getResourceUsage.h
+        all_mitigation.c
+        all_mitigation.h)
