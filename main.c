@@ -78,8 +78,6 @@ int main() {
         double raw_stress = predict(&params, a_prev, cpu, ram);
         int final_stress = (raw_stress >= 0.5) ? 1 : 0;
 
-        // Print both the binary class and the raw probability
-        printf("Predicted Stress: %d (Raw confidence: %.4f)\n", final_stress, raw_stress);
     }
     //adding in case I decide to remove the infinite loop so it doesn't cause a memory leak and also error
     free(dataset.cpu_norm);
