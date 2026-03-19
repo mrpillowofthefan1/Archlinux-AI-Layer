@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "train.h"
+#include "getResourceUsage.h"
 
 #define MAX_DATA 100000
 
@@ -72,13 +73,8 @@ int main() {
     Matrix* a_prev = matrix_zero(50, 1); // hidden size
 
     while (1) {
-        double cpu, ram;
-
-        printf("\nEnter CPU (0-1): ");
-        if (scanf("%lf", &cpu) != 1) break; // Added basic check to allow exiting cleanly on bad input
-
-        printf("Enter RAM (0-1): ");
-        if (scanf("%lf", &ram) != 1) break;
+        double cpu = get_cpu_usage();
+        double ram = get_ram_usage();
 
         // Get the raw probability from the model
         double raw_stress = predict(&params, a_prev, cpu, ram);
