@@ -75,6 +75,7 @@ int main() {
     while (1) {
         double cpu = get_cpu_usage();
         double ram = get_ram_usage();
+
         double raw_stress = predict(&params, a_prev, cpu, ram);
         int final_stress = (raw_stress >= 0.5) ? 1 : 0;
 
