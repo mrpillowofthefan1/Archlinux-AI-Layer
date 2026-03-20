@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void action_none() {
     printf("Nominal. No action required.\n");
@@ -10,7 +11,20 @@ void action_throttle() {
     system("pkill -STOP -f 'heavy_task_name'");
 }
 
+void get_top_processes(char* buffer, int size) {
+    FILE* fp = popen("ps -eo pid,pcpu,comm --sort=-pcpu | sed -n '2p'", "r");
+    if (fp == NULL) return;
+    if (fgets(buffer, size, fp) != NULL)  buffer[strcspn(buffer, "\n")] = 0;
+    pclose(fp);
+}
+
 void action_kill() {
-    printf("CRITICAL STRESS. Terminating offending processes\n");
-    system("pkill -9 -f 'heavy_task_name'");
+    char process_name[600];
+    char command[500];
+    get_top_processes(process_name, sizeof(process_name));
+    if (strlen(process_name) > 0) {
+        printf("CRITICAL STRESS. Terminating offending processes\n");
+        snprintf(command, sizeof(command),"kill -p %s", process_name);
+        system(command);
+    }
 }
