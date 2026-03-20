@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "train.h"
 #include "getResourceUsage.h"
+#include "all_mitigation.h"
 
 #define MAX_DATA 100000
 
@@ -81,7 +82,11 @@ int main() {
         double ram = get_ram_usage();
 
         double raw_stress = predict(&params,a_prev,  cpu, ram);
-        int final_stress = (raw_stress >= 0.5) ? 1 : 0;
+
+        if (raw_stress<0.6) action_none();
+        else if (raw_stress>0.6 && raw_stress<0.8) action_throttle();
+        else action_kill();
+
 
     }
     //adding in case I decide to remove the infinite loop so it doesn't cause a memory leak and also error
