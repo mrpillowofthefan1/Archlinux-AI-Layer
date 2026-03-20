@@ -51,16 +51,17 @@ optimize_return optimize(Matrix** X, Matrix** Y, int T_x, parameter_rnn* params,
     rnn_gradients grads = rnn_backward(da, Y, cache.caches, T_x);
 
     clip_gradients to_clip = {grads.dWaa, grads.dWax, grads.dWya, grads.dba, grads.dby};
-    clip(to_clip, clip_val);
+    clip_gradients clipped_grads = clip(to_clip, clip_val);
 
-    matrix_scalar_mul(grads.dWaa, lr); matrix_sub(params->Waa, grads.dWaa);
-    matrix_scalar_mul(grads.dWax, lr); matrix_sub(params->Wax, grads.dWax);
-    matrix_scalar_mul(grads.dWya, lr); matrix_sub(params->Wya, grads.dWya);
-    matrix_scalar_mul(grads.dba, lr);  matrix_sub(params->ba, grads.dba);
-    matrix_scalar_mul(grads.dby, lr);  matrix_sub(params->by, grads.dby);
+    matrix_scalar_mul(clipped_grads.dWaa, lr); matrix_sub(params->Waa, clipped_grads.dWaa);
+    matrix_scalar_mul(clipped_grads.dWax, lr); matrix_sub(params->Wax, clipped_grads.dWax);
+    matrix_scalar_mul(clipped_grads.dWya, lr); matrix_sub(params->Wya, clipped_grads.dWya);
+    matrix_scalar_mul(clipped_grads.db, lr);  matrix_sub(params->ba, clipped_grads.db);
+    matrix_scalar_mul(clipped_grads.dby, lr);  matrix_sub(params->by, clipped_grads.dby);
 
+    rnn_gradients final_grads = {grads.dxt, grads.da_prev, clipped_grads.dWax,clipped_grads.dWaa, clipped_grads.dWya,clipped_grads.db, clipped_grads.dby};
     result.loss = loss;
-    result.gradients = grads;
+    result.gradients = final_grads;
     result.n_a_1 = matrix_copy(cache.a[T_x - 1]);
 
     matrix_free(da);
@@ -72,6 +73,17 @@ optimize_return optimize(Matrix** X, Matrix** Y, int T_x, parameter_rnn* params,
     matrix_free(grads.dba);
     matrix_free(grads.dby);
     matrix_free(grads.da_prev);
+    matrix_free(final_grads.dxt);
+    matrix_free(final_grads.dWax);
+    matrix_free(final_grads.dWaa);
+    matrix_free(final_grads.dWya);
+    matrix_free(final_grads.dba);
+    matrix_free(final_grads.dby);
+    matrix_free(final_grads.da_prev);
+    matrix_free(clipped_grads.dWax);
+    matrix_free(clipped_grads.dWaa);
+    matrix_free(clipped_grads.dWya);
+    matrix_free(clipped_grads.dby);
 
     for (int t = 0; t < T_x; t++) {
         matrix_free(cache.a[t]);

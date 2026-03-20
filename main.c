@@ -39,6 +39,7 @@ data load_dataset() {
 }
 
 double predict(parameter_rnn* params, Matrix* a_prev, double cpu, double ram) {
+
     Matrix* x = matrix_zero(2, 1);
 
     MAT(x, 0, 0) = cpu;
@@ -50,7 +51,10 @@ double predict(parameter_rnn* params, Matrix* a_prev, double cpu, double ram) {
 
     rnn_cell_forward(x, a_prev, params, &a_next, &y_pred, &cache);
 
+
     double result = MAT(y_pred, 0, 0);
+
+
 
     matrix_free(x);
     matrix_free(a_next);
@@ -76,7 +80,7 @@ int main() {
         double cpu = get_cpu_usage();
         double ram = get_ram_usage();
 
-        double raw_stress = predict(&params, a_prev, cpu, ram);
+        double raw_stress = predict(&params,a_prev,  cpu, ram);
         int final_stress = (raw_stress >= 0.5) ? 1 : 0;
 
     }

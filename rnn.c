@@ -45,7 +45,6 @@ rnn_forward_output rnn_forward(Matrix** x, int T_x, Matrix* a0, parameter_rnn* p
 rnn_gradients rnn_cell_backward(Matrix* da, Matrix* y_true, rnn_cache* cache) {
     rnn_gradients out;
     Matrix* dy = matrix_copy(cache->y_pred);
-    matrix_sub(dy, y_true);
     Matrix* a_next_T = matrix_transpose(cache->a_next);
     out.dWya = matrix_mul(dy, a_next_T);
     out.dby = matrix_sum_cols(dy);
@@ -69,11 +68,14 @@ rnn_gradients rnn_cell_backward(Matrix* da, Matrix* y_true, rnn_cache* cache) {
 rnn_gradients rnn_backward(Matrix* da, Matrix** y_true, rnn_cache* caches, int T_x) {
     rnn_gradients out;
     int n_a = da->rows, n_x = caches[0].xt->rows;
+
     out.dWax = matrix_zero(n_a, n_x); out.dWaa = matrix_zero(n_a, n_a);
     out.dWya = matrix_zero(caches[0].params->Wya->rows, caches[0].params->Wya->cols);
     out.dba = matrix_zero(n_a, 1); out.dby = matrix_zero(out.dWya->rows, 1);
     out.dxt = matrix_zero(n_x, T_x);
+
     Matrix* da_prev = matrix_zero(n_a, 1);
+
     for (int t = T_x - 1; t >= 0; t--) {
         Matrix* da_t = matrix_slice_col(da, t);
         matrix_add(da_t, da_prev);
