@@ -4,18 +4,26 @@
 void rnn_cell_forward(Matrix* xt, Matrix* a_prev, parameter_rnn* params, Matrix** a_next_out, Matrix** yt_pred_out, rnn_cache* cache) {
     Matrix* Waa_aprev = matrix_mul(params->Waa, a_prev);
     Matrix* Wax_xt   = matrix_mul(params->Wax, xt);
+
     matrix_add(Waa_aprev, Wax_xt);
     matrix_add(Waa_aprev, params->ba);
+
     Matrix* a_next = matrix_zero(Waa_aprev->rows, Waa_aprev->cols);
     tanh_forward_matrix(a_next, Waa_aprev);
+
     Matrix* Wya_anext = matrix_mul(params->Wya, a_next);
     matrix_add(Wya_anext, params->by);
+
     Matrix* yt_pred = matrix_zero(Wya_anext->rows, Wya_anext->cols);
     sigmoid_forward_matrix(yt_pred, Wya_anext);
+
     *a_next_out = a_next; *yt_pred_out = yt_pred;
     cache->a_next = a_next; cache->a_prev = a_prev; cache->xt = xt;
     cache->params = params; cache->y_pred = yt_pred;
-    matrix_free(Wax_xt); matrix_free(Waa_aprev); matrix_free(Wya_anext);
+
+    matrix_free(Wax_xt);
+    matrix_free(Waa_aprev);
+    matrix_free(Wya_anext);
 }
 
 rnn_forward_output rnn_forward(Matrix** x, int T_x, Matrix* a0, parameter_rnn* params) {
