@@ -10,9 +10,8 @@ void get_current_throttle() {
     system("watch -n 1 \"cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq\"");
 }
 
-void action_throttle() {
-    printf("High CPU detected. Throttling background processes\n");
-    system("pkill -STOP -f 'heavy_task_name'");
+void action_throttle_heaviest_process() {
+    system("ps aux --sort=-%cpu | head -n 2 | tail -n 1 | awk '{print $2}' | xargs renice +10 -p");
 }
 
 
