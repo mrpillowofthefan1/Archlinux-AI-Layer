@@ -11,6 +11,18 @@
 
 void action_none() {
     printf("Nominal. No action required.\n");
+
+
+}
+
+unsigned long read_freq(const char* path) {
+    unsigned long freq = 0;
+    FILE* fp = fopen(path, "r");
+    if (fp) {
+        if (fscanf(fp, "%lu", &freq) != 1) freq = 0;
+        fclose(fp);
+    }
+    return freq;
 }
 
 void get_current_throttle() {
@@ -25,13 +37,9 @@ void set_min_throttle() {
     system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo powersave | sudo tee $i; done");
 }
 
-
-
 void action_throttle_heaviest_process() {
     system("ps aux --sort=-%cpu | head -n 2 | tail -n 1 | awk '{print $2}' | xargs renice +10 -p");
 }
-
-
 
 void get_top_pid(char* buffer, int size) {
     FILE* fp = popen("ps -eo pid,ni --sort=-pcpu | awk '$2 > 0 {print $1}' | head -n 1", "r");
@@ -47,10 +55,13 @@ void action_kill() {
     char command[64];
     get_top_pid(pid, sizeof(pid));
     if (strlen(pid) > 0) {
-        printf("CRITICAL STRESS. Terminating PID: %s\n", pid);
         snprintf(command, sizeof(command), "kill -9 %s", pid);
         system(command);
     }
+}
+
+void action_flush_ram() {
+    system("sync; echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null");
 }
 
 void set_state(Action action) {
