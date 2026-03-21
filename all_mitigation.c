@@ -53,17 +53,20 @@ void action_kill() {
 
 void set_state(Action action) {
     switch (action) {
-        case 1:
+        case 0:
             action_none();
             break;
+        case 1:
+            action_throttle_heaviest_process();
+            break;
         case 2:
-            printf("Medium level");
+            action_kill();
+            action_throttle_heaviest_process();
             break;
         case 3:
-            printf("High level");
-            break;
-        case 4:
-            printf("High level");
+            action_kill();
+            action_throttle_heaviest_process();
+            action_throttle_heaviest_process();
             break;
         default:
             action_none();
