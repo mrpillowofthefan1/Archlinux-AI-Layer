@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "all_mitigation.h"
 
 void action_none() {
     printf("Nominal. No action required.\n");
@@ -31,5 +32,25 @@ void action_kill() {
         printf("CRITICAL STRESS. Terminating offending processes\n");
         snprintf(command, sizeof(command),"kill -p %s", process_name);
         system(command);
+    }
+}
+
+void set_state(Action action) {
+    switch (action) {
+        case 1:
+            action_none();
+            break;
+        case 2:
+            printf("Medium level");
+            break;
+        case 3:
+            printf("High level");
+            break;
+        case 4:
+            printf("High level");
+            break;
+        default:
+            action_none();
+            break;
     }
 }

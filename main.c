@@ -84,7 +84,7 @@ int main() {
         double raw_stress = predict(&params,a_prev,  cpu, ram);
 
         if (raw_stress<0.6) action_none();
-        else if (raw_stress>0.6 && raw_stress<0.8) action_throttle();
+        else if (raw_stress>0.6 && raw_stress<0.8) action_throttle_heaviest_process();
         else action_kill();
 
 
