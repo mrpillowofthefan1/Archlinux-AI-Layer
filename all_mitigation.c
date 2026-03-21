@@ -3,6 +3,12 @@
 #include <string.h>
 #include "all_mitigation.h"
 
+
+# define  CPU_MAX_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+# define CPU_MIN_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
+# define CPU_CUR_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+
+
 void action_none() {
     printf("Nominal. No action required.\n");
 }
@@ -10,6 +16,16 @@ void action_none() {
 void get_current_throttle() {
     system("watch -n 1 \"cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq\"");
 }
+
+void set_max_throttle() {
+    system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i; done");
+}
+
+void set_min_throttle() {
+    system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo powersave | sudo tee $i; done");
+}
+
+
 
 void action_throttle_heaviest_process() {
     system("ps aux --sort=-%cpu | head -n 2 | tail -n 1 | awk '{print $2}' | xargs renice +10 -p");
