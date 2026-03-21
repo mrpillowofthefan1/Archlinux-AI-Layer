@@ -33,20 +33,20 @@ void action_throttle_heaviest_process() {
 
 
 
-void get_top_processes(char* buffer, int size) {
-    FILE* fp = popen("ps -eo pid,pcpu,comm --sort=-pcpu | sed -n '2p'", "r");
+void get_top_pid(char* buffer, int size) {
+    FILE* fp = popen("ps -eo pid --sort=-pcpu | sed -n '2p'", "r");
     if (fp == NULL) return;
-    if (fgets(buffer, size, fp) != NULL)  buffer[strcspn(buffer, "\n")] = 0;
+    if (fgets(buffer, size, fp) != NULL) buffer[strcspn(buffer, "\n")] = 0;
     pclose(fp);
 }
 
 void action_kill() {
-    char process_name[600];
-    char command[500];
-    get_top_processes(process_name, sizeof(process_name));
-    if (strlen(process_name) > 0) {
-        printf("CRITICAL STRESS. Terminating offending processes\n");
-        snprintf(command, sizeof(command),"kill -p %s", process_name);
+    char pid[32];
+    char command[64];
+    get_top_pid(pid, sizeof(pid));
+    if (strlen(pid) > 0) {
+        printf("CRITICAL STRESS. Terminating PID: %s\n", pid);
+        snprintf(command, sizeof(command), "kill -9 %s", pid);
         system(command);
     }
 }
@@ -61,7 +61,6 @@ void set_state(Action action) {
             break;
         case 2:
             action_kill();
-            action_throttle_heaviest_process();
             break;
         case 3:
             action_kill();
