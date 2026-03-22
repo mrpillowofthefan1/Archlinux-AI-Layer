@@ -75,6 +75,10 @@ int main() {
 
     printf("Training complete\n");
 
+    free(dataset.cpu_norm);
+    free(dataset.ram_norm);
+    free(dataset.stress_injected);
+
     Matrix* a_prev = matrix_zero(50, 1);
 
     while (1) {
@@ -83,16 +87,12 @@ int main() {
 
         double raw_stress = predict(&params,a_prev,  cpu, ram);
 
-        if (raw_stress<0.6) action_none();
-        else if (raw_stress>0.6 && raw_stress<0.8) action_throttle_heaviest_process();
-        else action_kill();
+        if (raw_stress<0.6) set_state();
+        else if (raw_stress>0.6 && raw_stress<0.8) set_state();
+        else set_state();
 
 
     }
-    //adding in case I decide to remove the infinite loop so it doesn't cause a memory leak and also error
-    free(dataset.cpu_norm);
-    free(dataset.ram_norm);
-    free(dataset.stress_injected);
 
     return 0;
 }
