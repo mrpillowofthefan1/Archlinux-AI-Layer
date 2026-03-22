@@ -7,12 +7,11 @@
 # define  CPU_MAX_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
 # define CPU_MIN_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
 # define CPU_CUR_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+# define CPU_TEMP_PATH "cat /sys/class/thermal/thermal_zone0/temp"
 
 
 void action_none() {
     printf("Nominal. No action required.\n");
-
-
 }
 
 unsigned long read_freq(const char* path) {
@@ -25,9 +24,16 @@ unsigned long read_freq(const char* path) {
     return freq;
 }
 
-void get_current_throttle() {
-    system("watch -n 1 \"cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq\"");
+unsigned long read_temp() {
+    unsigned long temp = 0;
+    FILE* fp = fopen(CPU_TEMP_PATH, "r");
+    if (fp) {
+        if (fscanf(fp, "%lu", &temp) != 1) temp = 0;
+        fclose(fp);
+    }
+    return temp;
 }
+
 
 void set_max_throttle() {
     system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i; done");
