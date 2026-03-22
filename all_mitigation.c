@@ -39,7 +39,7 @@ void set_max_throttle() {
     unsigned long max_val = read_freq(CPU_MAX_PATH);
     if (max_val > 0) {
         system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i > /dev/null; done");
-        char cmd[128];
+        char cmd[256];
         snprintf(cmd, sizeof(cmd), "for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq; do echo %lu | sudo tee $i > /dev/null; done", max_val);
         system(cmd);
     }
@@ -50,11 +50,29 @@ void set_min_throttle() {
     unsigned long min_val = read_freq(CPU_MIN_PATH);
     if (min_val > 0) {
         system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i > /dev/null; done");
-        char cmd[128];
+        char cmd[256];
         snprintf(cmd, sizeof(cmd), "for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq; do echo %lu | sudo tee $i > /dev/null; done", min_val);
         system(cmd);
     }
 }
+
+void action_reset_throttle() {
+    const unsigned long min_val = read_freq(CPU_MIN_PATH);
+    const unsigned long max_val = read_freq(CPU_MAX_PATH);
+
+    if (min_val > 0 && max_val > 0) {
+        printf("RESTORING: Resetting CPU to standard dynamic scaling.\n");
+        char cmd_min[256], cmd_max[256];
+        snprintf(cmd_min, sizeof(cmd_min), "for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq; do echo %lu | sudo tee $i > /dev/null; done", min_val);
+        snprintf(cmd_max, sizeof(cmd_max), "for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do echo %lu | sudo tee $i > /dev/null; done", max_val);
+
+        system(cmd_min);
+        system(cmd_max);
+
+        system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo schedutil | sudo tee $i > /dev/null || echo ondemand | sudo tee $i > /dev/null || echo powersave | sudo tee $i > /dev/null; done");
+    }
+}
+
 
 void action_throttle_heaviest_process() {
     system("ps aux --sort=-%cpu | head -n 2 | tail -n 1 | awk '{print $2}' | xargs renice +10 -p");
@@ -87,6 +105,7 @@ void set_state(Action action) {
     switch (action) {
         case 0:
             action_none();
+            action_reset_throttle();
             break;
         case 1:
             action_throttle_heaviest_process();
@@ -102,6 +121,7 @@ void set_state(Action action) {
             break;
         default:
             action_none();
+            action_reset_throttle();
             break;
     }
 }
