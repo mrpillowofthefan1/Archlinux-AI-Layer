@@ -120,7 +120,7 @@ void set_state(Action action) {
             action_kill();
             action_throttle_heaviest_process();
             action_flush_ram();
-            if (read_temp()>90) set_max_throttle();
+            if (read_temp()<90) set_max_throttle();
             break;
         default:
             action_none();
