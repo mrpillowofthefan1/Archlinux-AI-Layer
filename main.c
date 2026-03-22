@@ -87,9 +87,11 @@ int main() {
 
         double raw_stress = predict(&params,a_prev,  cpu, ram);
 
-        if (raw_stress<0.6) set_state();
-        else if (raw_stress>0.6 && raw_stress<0.8) set_state();
-        else set_state();
+        if (raw_stress<0.2) set_state(ACTION_L0);
+        else if (raw_stress>0.2 && raw_stress<0.4) set_state(ACTION_L1);
+        else if (raw_stress>0.4 && raw_stress<0.8) set_state(ACTION_L2);
+        else if (raw_stress>0.8 && raw_stress<=1) set_state(ACTION_L3);
+        else set_state(ACTION_DEFAULT);
 
 
     }

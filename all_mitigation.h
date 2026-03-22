@@ -1,10 +1,11 @@
 #pragma once
 
 typedef enum {
-    ACTION_NONE,
-    ACTION_KILL,
-    ACTION_THROTTLE,
-    ACTION_OVERCLOCK
+    ACTION_L0,
+    ACTION_L1,
+    ACTION_L2,
+    ACTION_L3,
+    ACTION_DEFAULT
 } Action;
 
 
