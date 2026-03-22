@@ -31,7 +31,7 @@ unsigned long read_temp() {
         if (fscanf(fp, "%lu", &temp) != 1) temp = 0;
         fclose(fp);
     }
-    return temp;
+    return temp/1000;
 }
 
 
