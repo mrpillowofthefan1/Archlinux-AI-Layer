@@ -79,7 +79,7 @@ void action_throttle_heaviest_process() {
 }
 
 void get_top_pid(char* buffer, int size) {
-    FILE* fp = popen("ps -eo pid,ni --sort=-pcpu | awk '$2 > 0 {print $1}' | head -n 1", "r");
+    FILE* fp = popen("ps -eo pid,user,pcpu --sort=-pcpu | awk '$2 != \"root\" {print $1}' | head -n 1", "r");
     if (fp == NULL) return;
     if (fgets(buffer, size, fp) != NULL) {
         buffer[strcspn(buffer, "\n")] = 0;
