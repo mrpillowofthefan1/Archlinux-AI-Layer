@@ -36,11 +36,24 @@ unsigned long read_temp() {
 
 
 void set_max_throttle() {
-    system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i; done");
+    unsigned long max_val = read_freq(CPU_MAX_PATH);
+    if (max_val > 0) {
+        system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i > /dev/null; done");
+        char cmd[128];
+        snprintf(cmd, sizeof(cmd), "for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq; do echo %lu | sudo tee $i > /dev/null; done", max_val);
+        system(cmd);
+    }
+
 }
 
 void set_min_throttle() {
-    system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo powersave | sudo tee $i; done");
+    unsigned long min_val = read_freq(CPU_MIN_PATH);
+    if (min_val > 0) {
+        system("for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | sudo tee $i > /dev/null; done");
+        char cmd[128];
+        snprintf(cmd, sizeof(cmd), "for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq; do echo %lu | sudo tee $i > /dev/null; done", min_val);
+        system(cmd);
+    }
 }
 
 void action_throttle_heaviest_process() {
@@ -80,11 +93,12 @@ void set_state(Action action) {
             break;
         case 2:
             action_kill();
+            action_flush_ram();
             break;
         case 3:
             action_kill();
             action_throttle_heaviest_process();
-            action_throttle_heaviest_process();
+            action_flush_ram();
             break;
         default:
             action_none();
