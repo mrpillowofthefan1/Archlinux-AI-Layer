@@ -7,7 +7,7 @@
 # define CPU_MAX_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
 # define CPU_MIN_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
 # define CPU_CUR_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
-# define CPU_TEMP_PATH "cat /sys/class/thermal/thermal_zone0/temp"
+# define CPU_TEMP_PATH "/sys/class/thermal/thermal_zone0/temp"
 
 
 void action_none() {
@@ -105,20 +105,22 @@ void set_state(Action action) {
     switch (action) {
         case 0:
             action_none();
-            action_reset_throttle();
+
             break;
         case 1:
             action_throttle_heaviest_process();
+            action_reset_throttle();
             break;
         case 2:
             action_kill();
             action_flush_ram();
+            action_reset_throttle();
             break;
         case 3:
             action_kill();
             action_throttle_heaviest_process();
             action_flush_ram();
-            set_max_throttle();
+            if (read_temp()<85) set_max_throttle();
             break;
         default:
             action_none();
