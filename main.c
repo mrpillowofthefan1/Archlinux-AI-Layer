@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "train.h"
 #include "getResourceUsage.h"
 #include "all_mitigation.h"
@@ -92,7 +93,7 @@ int main() {
         else if (raw_stress>0.4 && raw_stress<0.8) set_state(ACTION_L2);
         else if (raw_stress>0.8 && raw_stress<=1) set_state(ACTION_L3);
         else set_state(ACTION_DEFAULT);
-
+        sleep(5);
 
     }
 
