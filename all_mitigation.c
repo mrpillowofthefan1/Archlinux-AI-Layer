@@ -4,7 +4,7 @@
 #include "all_mitigation.h"
 
 
-# define  CPU_MAX_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+# define CPU_MAX_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
 # define CPU_MIN_PATH "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
 # define CPU_CUR_PATH "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
 # define CPU_TEMP_PATH "cat /sys/class/thermal/thermal_zone0/temp"
@@ -118,10 +118,11 @@ void set_state(Action action) {
             action_kill();
             action_throttle_heaviest_process();
             action_flush_ram();
+            set_max_throttle();
             break;
         default:
             action_none();
-            action_reset_throttle();
+            set_min_throttle();
             break;
     }
 }
