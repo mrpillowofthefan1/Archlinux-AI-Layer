@@ -88,11 +88,13 @@ int main() {
 
         double raw_stress = predict(&params,a_prev,  cpu, ram);
 
-        if (raw_stress<0.2) set_state(ACTION_L0);
-        else if (raw_stress>0.2 && raw_stress<0.4) set_state(ACTION_L1);
-        else if (raw_stress>0.4 && raw_stress<0.8) set_state(ACTION_L2);
-        else if (raw_stress>0.8 && raw_stress<=1) set_state(ACTION_L3);
-        else set_state(ACTION_DEFAULT);
+        static Action current_action = ACTION_DEFAULT;
+        if (raw_stress>0.8) current_action = ACTION_L3;
+        else if (raw_stress>0.5 && current_action < ACTION_L2) current_action = ACTION_L2;
+        else if (raw_stress>0.3 && current_action < ACTION_L1) current_action = ACTION_L1;
+        else if (raw_stress>0.2 && current_action < ACTION_L1) current_action = ACTION_L0;
+
+        set_state(current_action);
         sleep(5);
 
     }
