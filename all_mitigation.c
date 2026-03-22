@@ -105,11 +105,11 @@ void set_state(Action action) {
     switch (action) {
         case 0:
             action_none();
-
+            set_min_throttle();
             break;
         case 1:
             action_throttle_heaviest_process();
-            action_reset_throttle();
+            set_min_throttle();
             break;
         case 2:
             action_kill();
@@ -120,7 +120,7 @@ void set_state(Action action) {
             action_kill();
             action_throttle_heaviest_process();
             action_flush_ram();
-            if (read_temp()<85) set_max_throttle();
+            if (read_temp()>90) set_max_throttle();
             break;
         default:
             action_none();
