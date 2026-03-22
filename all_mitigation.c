@@ -92,7 +92,7 @@ void action_kill() {
     char command[64];
     get_top_pid(pid, sizeof(pid));
     if (strlen(pid) > 0) {
-        snprintf(command, sizeof(command), "kill -9 %s", pid);
+        snprintf(command, sizeof(command), "kill %s", pid);
         system(command);
     }
 }
