@@ -4,23 +4,17 @@
 void rnn_cell_forward(Matrix* xt, Matrix* a_prev, parameter_rnn* params, Matrix** a_next_out, Matrix** yt_pred_out, rnn_cache* cache) {
     Matrix* Waa_aprev = matrix_mul(params->Waa, a_prev);
     Matrix* Wax_xt   = matrix_mul(params->Wax, xt);
-
     matrix_add(Waa_aprev, Wax_xt);
     matrix_add(Waa_aprev, params->ba);
-
     Matrix* a_next = matrix_zero(Waa_aprev->rows, Waa_aprev->cols);
     tanh_forward_matrix(a_next, Waa_aprev);
-
     Matrix* Wya_anext = matrix_mul(params->Wya, a_next);
     matrix_add(Wya_anext, params->by);
-
     Matrix* yt_pred = matrix_zero(Wya_anext->rows, Wya_anext->cols);
     sigmoid_forward_matrix(yt_pred, Wya_anext);
-
     *a_next_out = a_next; *yt_pred_out = yt_pred;
     cache->a_next = a_next; cache->a_prev = a_prev; cache->xt = xt;
     cache->params = params; cache->y_pred = yt_pred;
-
     matrix_free(Wax_xt);
     matrix_free(Waa_aprev);
     matrix_free(Wya_anext);
@@ -45,6 +39,7 @@ rnn_forward_output rnn_forward(Matrix** x, int T_x, Matrix* a0, parameter_rnn* p
 rnn_gradients rnn_cell_backward(Matrix* da, Matrix* y_true, rnn_cache* cache) {
     rnn_gradients out;
     Matrix* dy = matrix_copy(cache->y_pred);
+    matrix_sub(dy, y_true);
     Matrix* a_next_T = matrix_transpose(cache->a_next);
     out.dWya = matrix_mul(dy, a_next_T);
     out.dby = matrix_sum_cols(dy);
@@ -68,14 +63,11 @@ rnn_gradients rnn_cell_backward(Matrix* da, Matrix* y_true, rnn_cache* cache) {
 rnn_gradients rnn_backward(Matrix* da, Matrix** y_true, rnn_cache* caches, int T_x) {
     rnn_gradients out;
     int n_a = da->rows, n_x = caches[0].xt->rows;
-
     out.dWax = matrix_zero(n_a, n_x); out.dWaa = matrix_zero(n_a, n_a);
     out.dWya = matrix_zero(caches[0].params->Wya->rows, caches[0].params->Wya->cols);
     out.dba = matrix_zero(n_a, 1); out.dby = matrix_zero(out.dWya->rows, 1);
     out.dxt = matrix_zero(n_x, T_x);
-
     Matrix* da_prev = matrix_zero(n_a, 1);
-
     for (int t = T_x - 1; t >= 0; t--) {
         Matrix* da_t = matrix_slice_col(da, t);
         matrix_add(da_t, da_prev);

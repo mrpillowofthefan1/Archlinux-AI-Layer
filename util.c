@@ -92,28 +92,39 @@ Matrix *matrix_concat(Matrix *A, Matrix *B)
 }
 
 
-void matrix_add(Matrix *A, Matrix *B)
-{
-    if (A->rows != B->rows || A->cols != B->cols) {
-        fprintf(stderr, "matrix_add: dimension mismatch\n");
+Matrix *matrix_mul(Matrix *A, Matrix *B) {
+    if (A->cols != B->rows) {
+        fprintf(stderr, "matrix_mul: dimension mismatch! A is %dx%d, B is %dx%d\n", A->rows, A->cols, B->rows, B->cols);
         exit(1);
     }
-
-    int n = A->rows * A->cols;
-    for (int i = 0; i < n; i++)
-        A->data[i] += B->data[i];
+    Matrix *R = matrix_zero(A->rows, B->cols);
+    for (int i = 0; i < A->rows; i++) {
+        for (int j = 0; j < B->cols; j++) {
+            double sum = 0.0;
+            for (int k = 0; k < A->cols; k++)
+                sum += MAT(A, i, k) * MAT(B, k, j);
+            MAT(R, i, j) = sum;
+        }
+    }
+    return R;
 }
 
-void matrix_sub(Matrix *A, Matrix *B)
-{
+void matrix_add(Matrix *A, Matrix *B) {
     if (A->rows != B->rows || A->cols != B->cols) {
-        fprintf(stderr, "matrix_sub: dimension mismatch\n");
+        fprintf(stderr, "matrix_add: mismatch! A: %dx%d, B: %dx%d\n", A->rows, A->cols, B->rows, B->cols);
         exit(1);
     }
-
     int n = A->rows * A->cols;
-    for (int i = 0; i < n; i++)
-        A->data[i] -= B->data[i];
+    for (int i = 0; i < n; i++) A->data[i] += B->data[i];
+}
+
+void matrix_sub(Matrix *A, Matrix *B) {
+    if (A->rows != B->rows || A->cols != B->cols) {
+        fprintf(stderr, "matrix_sub: mismatch! A: %dx%d, B: %dx%d\n", A->rows, A->cols, B->rows, B->cols);
+        exit(1);
+    }
+    int n = A->rows * A->cols;
+    for (int i = 0; i < n; i++) A->data[i] -= B->data[i];
 }
 
 void matrix_scalar_mul(Matrix *A, double s)
@@ -154,25 +165,6 @@ int init_zero_matrix(double*** A, int R, int C)
     return 0;
 }
 
-Matrix *matrix_mul(Matrix *A, Matrix *B)
-{
-    if (A->cols != B->rows) {
-        fprintf(stderr, "matrix_mul: dimension mismatch\n");
-        exit(1);
-    }
-
-    Matrix *R = matrix_zero(A->rows, B->cols);
-
-    for (int i = 0; i < A->rows; i++)
-        for (int j = 0; j < B->cols; j++) {
-            double sum = 0.0;
-            for (int k = 0; k < A->cols; k++)
-                sum += MAT(A, i, k) * MAT(B, k, j);
-            MAT(R, i, j) = sum;
-        }
-
-    return R;
-}
 
 Matrix* matrix_slice_col(Matrix* A, int col)
 {
