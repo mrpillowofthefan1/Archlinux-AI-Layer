@@ -3,5 +3,6 @@
 *.ninja_deps
 *.log
 *.c.o
+*.text
 
 CMakeLists.txt
