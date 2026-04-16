@@ -282,3 +282,10 @@ void tanh_backward_matrix(Matrix* dldY, Matrix* Y, Matrix* dldX)
     for (int i = 0; i < n; i++)
         dldX->data[i] = dldY->data[i] * (1.0 - Y->data[i] * Y->data[i]);
 }
+
+void matrix_save_to_file(FILE* fp, Matrix* m) {
+    if (!fp || !m) return;
+    fwrite(&m->rows, sizeof(int), 1, fp);
+    fwrite(&m->cols, sizeof(int), 1, fp);
+    fwrite(m->data, sizeof(double), m->rows * m->cols, fp);
+}

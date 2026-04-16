@@ -40,4 +40,6 @@ void sigmoid_backward_matrix(Matrix* dldY, Matrix* Y, Matrix* dldX);
 void tanh_forward_matrix(Matrix *Y, Matrix *X);
 void tanh_backward_matrix(Matrix* dldY, Matrix* Y, Matrix* dldX);
 
+void matrix_save_to_file(FILE* fp, Matrix* m);
+
 #endif

@@ -1,83 +1,102 @@
+#define GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
+#include <sched.h>
+
+#include <dirent.h>
+#include <ctype.h>
+#include <time.h>
+#include <sys/resource.h>
 #include "all_mitigation.h"
 
-void get_top_pid(char* buffer, int size) {
+static time_t last_affinity_time = 0;
 
-    FILE* fp = popen("pgrep -x stress-ng | head -n 1", "r");
-    if (fp && fgets(buffer, size, fp) && strlen(buffer) > 1) {
-        buffer[strcspn(buffer, "\n")] = 0;
-        pclose(fp);
-        return;
+int is_numeric(const char* str) {
+    while (*str) {
+        if (!isdigit(*str)) return 0;
+        str++;
     }
-    if (fp) pclose(fp);
+    return 1;
+}
 
-    fp = popen("pgrep -x stress | head -n 1", "r");
-    if (fp && fgets(buffer, size, fp) && strlen(buffer) > 1) {
-        buffer[strcspn(buffer, "\n")] = 0;
-        pclose(fp);
-        return;
+int is_stress_process(pid_t pid) {
+    char path[256], comm[256];
+    snprintf(path, sizeof(path), "/proc/%d/comm", pid);
+
+    FILE *fp = fopen(path, "r");
+    if (!fp) return 0;
+
+    if (fgets(comm, sizeof(comm), fp)) {
+        comm[strcspn(comm, "\n")] = 0;
+        fclose(fp);
+        if (strncmp(comm, "stress", 6) == 0) return 1;
+    } else {
+        fclose(fp);
     }
-    if (fp) pclose(fp);
+    return 0;
+}
 
-    const char* critical_ui = "(gnome|kde|Xorg|wayland|dbus|systemd|pulse|pipewire|bash|zsh|ssh|python|test)";
-    char cmd[1024];
-    snprintf(cmd, sizeof(cmd),
-        "ps -eo pid,comm --sort=-%%cpu | "
-        "awk -v mypid=%d '"
-        "$1 == mypid || $1 == 1 {next} "
-        "$2 ~ /%s/ {next} "
-        "{print $1}' | head -n 1",
-        getpid(), critical_ui);
+void apply_mitigation_state(Action state) {
+    time_t now = time(NULL);
+    if (now - last_affinity_time < 15) return;
+    last_affinity_time = now;
 
-    fp = popen(cmd, "r");
-    if (fp) {
-        if (fgets(buffer, size, fp)) {
-            buffer[strcspn(buffer, "\n")] = 0;
+    DIR *dir = opendir("/proc");
+    if (!dir) return;
+
+    struct dirent *ent;
+    int current_core = 0;
+    int num_cores = sysconf(_SC_NPROCESSORS_ONLN);
+
+    while ((ent = readdir(dir)) != NULL) {
+        if (is_numeric(ent->d_name)) {
+            pid_t pid = atoi(ent->d_name);
+
+            if (is_stress_process(pid)) {
+                cpu_set_t mask;
+                CPU_ZERO(&mask);
+
+                switch (state) {
+                    case ACTION_L0:
+                        for (int i = 0; i < num_cores; i++) {
+                            CPU_SET(i, &mask);
+                        }
+                        setpriority(PRIO_PROCESS, pid, 0);
+                        break;
+
+                    case ACTION_L1:
+                        CPU_SET(current_core, &mask);
+                        setpriority(PRIO_PROCESS, pid, 0);
+                        current_core++;
+                        if (current_core >= num_cores) current_core = 0;
+                        break;
+
+                    case ACTION_L2:
+                        CPU_SET(current_core, &mask);
+                        setpriority(PRIO_PROCESS, pid, 10);
+                        current_core++;
+                        if (current_core >= num_cores) current_core = 0;
+                        break;
+
+                    case ACTION_L3:
+                        CPU_SET(current_core, &mask);
+                        setpriority(PRIO_PROCESS, pid, 19);
+                        current_core++;
+                        if (current_core >= num_cores) current_core = 0;
+                        break;
+
+                    default:
+                        break;
+                }
+                sched_setaffinity(pid, sizeof(cpu_set_t), &mask);
+            }
         }
-        pclose(fp);
     }
+    closedir(dir);
 }
 
 void set_state(Action action) {
-    char pid_str[32] = {0};
-    get_top_pid(pid_str, sizeof(pid_str));
-
-    if (strlen(pid_str) == 0) return;
-    pid_t pid = atoi(pid_str);
-    if (pid <= 1) return;
-
-    pid_t pgid = getpgid(pid);
-    if (pgid <= 1) pgid = pid;
-
-    switch (action) {
-        case ACTION_L0:
-            killpg(pgid, SIGCONT);
-            break;
-
-        case ACTION_L1:
-            killpg(pgid, SIGCONT);
-            usleep(150000);
-            killpg(pgid, SIGSTOP);
-            break;
-
-        case ACTION_L2:
-            killpg(pgid, SIGCONT);
-            usleep(42000);
-            killpg(pgid, SIGSTOP);
-            break;
-
-        case ACTION_L3:
-            killpg(pgid, SIGCONT);
-            usleep(5000);
-            killpg(pgid, SIGSTOP);
-            break;
-
-        default:
-            break;
-    }
+    apply_mitigation_state(action);
 }
